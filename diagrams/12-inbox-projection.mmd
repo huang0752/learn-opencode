@@ -1,0 +1,14 @@
+sequenceDiagram
+    participant A as Session.prompt
+    participant B as Bus / 投影
+    participant I as session_inbox
+    participant M as session_message
+    participant R as Runner
+    A->>B: InboxEnqueued
+    B->>I: 写入 ID 和 enqueued_seq
+    Note over B,I: 提交 A 后可以看到待交付输入
+    R->>B: 安全边界发布 InboxDelivered
+    B->>I: 按 ID 取出并删除
+    B->>M: 同一 ID 插入消息
+    Note over I,M: 删除与插入在提交 B 中一起完成
+    R->>M: 重新读取历史，准备模型请求

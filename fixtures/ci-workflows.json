@@ -1,0 +1,2553 @@
+{
+  "commit": "ee5fe34e136488a1839ac73bcca8321c51a31b75",
+  "workflows": [
+    {
+      "id": "bot-nix-hashes",
+      "name": "bot-nix-hashes",
+      "source": ".github/workflows/bot-nix-hashes.yml",
+      "triggers": {
+        "workflow_dispatch": "",
+        "push": {
+          "branches": [
+            "dev"
+          ],
+          "paths": [
+            "bun.lock",
+            "package.json",
+            "packages/*/package.json",
+            "services/*/package.json",
+            "flake.lock",
+            "nix/node_modules.nix",
+            "nix/scripts/**",
+            "patches/**",
+            ".github/workflows/bot-nix-hashes.yml"
+          ]
+        }
+      },
+      "jobs": [
+        {
+          "id": "hash",
+          "runs-on": "${{ matrix.runner }}",
+          "strategy": {
+            "fail-fast": "false",
+            "matrix": {
+              "include": [
+                {
+                  "system": "x86_64-linux",
+                  "runner": "blacksmith-4vcpu-ubuntu-2404"
+                },
+                {
+                  "system": "aarch64-linux",
+                  "runner": "blacksmith-4vcpu-ubuntu-2404-arm"
+                },
+                {
+                  "system": "aarch64-darwin",
+                  "runner": "blacksmith-6vcpu-macos-latest"
+                }
+              ]
+            }
+          },
+          "steps": [
+            {
+              "name": "Checkout repository",
+              "uses": "actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd"
+            },
+            {
+              "name": "Setup Nix",
+              "uses": "nixbuild/nix-quick-install-action@2c9db80fb984ceb1bcaa77cdda3fdf8cfba92035"
+            },
+            {
+              "name": "Compute node_modules hash",
+              "run": "set -euo pipefail\n\nBUILD_LOG=$(mktemp)\ntrap 'rm -f \"$BUILD_LOG\"' EXIT\n\nHASH=\"\"\nMAX_ATTEMPTS=3\nfor ((ATTEMPT = 1; ATTEMPT <= MAX_ATTEMPTS; ATTEMPT++)); do\n  # Build with fakeHash to trigger hash mismatch and reveal correct hash\n  nix build \".#packages.${SYSTEM}.node_modules_updater\" --no-link 2>&1 | tee \"$BUILD_LOG\" || true\n\n  HASH=\"$(nix run --inputs-from . nixpkgs#gnugrep -- -oP 'got:\\s*\\Ksha256-[A-Za-z0-9+/=]+' \"$BUILD_LOG\" | tail -n1 || true)\"\n\n  [ -n \"$HASH\" ] && break\n\n  if [ \"$ATTEMPT\" -lt \"$MAX_ATTEMPTS\" ]; then\n    echo \"::warning::Attempt ${ATTEMPT}/${MAX_ATTEMPTS} produced no hash for ${SYSTEM}; retrying in $((ATTEMPT * 10))s\"\n    sleep $((ATTEMPT * 10))\n  fi\ndone\n\nif [ -z \"$HASH\" ]; then\n  echo \"::error::Failed to compute hash for ${SYSTEM} after ${MAX_ATTEMPTS} attempts\"\n  cat \"$BUILD_LOG\"\n  exit 1\nfi\n\necho \"$HASH\" > hash.txt\necho \"Computed hash for ${SYSTEM}: $HASH\"\n"
+            },
+            {
+              "name": "Upload hash",
+              "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+            }
+          ]
+        },
+        {
+          "id": "compute",
+          "needs": "hash",
+          "runs-on": "ubuntu-24.04",
+          "steps": [
+            {
+              "name": "Checkout repository",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Download hash artifacts",
+              "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093"
+            },
+            {
+              "name": "Update hashes.json",
+              "run": "set -euo pipefail\n\nHASH_FILE=\"nix/hashes.json\"\n\n[ -f \"$HASH_FILE\" ] || echo '{\"nodeModules\":{}}' > \"$HASH_FILE\"\n\nfor SYSTEM in x86_64-linux aarch64-linux aarch64-darwin; do\n  HASH=\"$(tr -d '[:space:]' < \"$HASHES/hash-${SYSTEM}/hash.txt\")\"\n  echo \"${SYSTEM}: ${HASH}\"\n  jq --arg sys \"$SYSTEM\" --arg h \"$HASH\" '.nodeModules[$sys] = $h' \"$HASH_FILE\" > tmp.json\n  mv tmp.json \"$HASH_FILE\"\ndone\n\ncat \"$HASH_FILE\"\nbash .github/nix-hashes/validate.sh \"$HASH_FILE\"\n\nif git diff --quiet -- \"$HASH_FILE\"; then\n  echo \"changed=false\" >> \"$GITHUB_OUTPUT\"\n  echo \"### Nix hashes\" >> \"$GITHUB_STEP_SUMMARY\"\n  echo \"Status: no changes\" >> \"$GITHUB_STEP_SUMMARY\"\nelse\n  echo \"changed=true\" >> \"$GITHUB_OUTPUT\"\n  echo \"### Nix hashes\" >> \"$GITHUB_STEP_SUMMARY\"\n  echo \"Status: changed\" >> \"$GITHUB_STEP_SUMMARY\"\nfi\n"
+            },
+            {
+              "name": "Upload hashes.json",
+              "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+            }
+          ]
+        },
+        {
+          "id": "publish",
+          "needs": "compute",
+          "if": "github.repository == 'anomalyco/opencode' && github.ref == 'refs/heads/dev'",
+          "runs-on": "ubuntu-24.04",
+          "steps": [
+            {
+              "name": "Check out publish scripts",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Check out dev",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Download hashes.json",
+              "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093"
+            },
+            {
+              "name": "Publish",
+              "run": "bash ../trusted/.github/nix-hashes/publish.sh \"$RUNNER_TEMP/nix-hashes/hashes.json\"",
+              "working-directory": "repo"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "check-bot-scope",
+      "name": "check-bot-scope",
+      "source": ".github/workflows/check-bot-scope.yml",
+      "triggers": {
+        "pull_request": {
+          "types": [
+            "opened",
+            "synchronize",
+            "reopened",
+            "ready_for_review"
+          ]
+        },
+        "workflow_dispatch": ""
+      },
+      "jobs": [
+        {
+          "id": "bot-scope",
+          "runs-on": "ubuntu-24.04",
+          "steps": [
+            {
+              "name": "Check branch",
+              "run": "if [ \"$HEAD_REF\" = bot/nix-hashes ]; then\n  echo \"bot=true\" >> \"$GITHUB_OUTPUT\"\nelse\n  echo \"$HEAD_REF is not a bot branch; nothing to check\"\nfi\n"
+            },
+            {
+              "name": "Checkout repository",
+              "if": "steps.branch.outputs.bot == 'true'",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Check changed files",
+              "if": "steps.branch.outputs.bot == 'true'",
+              "run": "set -euo pipefail\ngit fetch --no-tags --filter=blob:none origin \"+refs/heads/$BASE:refs/remotes/origin/$BASE\"\nchanged=$(git diff --name-only \"origin/$BASE...HEAD\")\necho \"Changed files:\"\necho \"$changed\"\nif [ \"$changed\" != nix/hashes.json ]; then\n  echo \"::error::bot/nix-hashes may change only nix/hashes.json\"\n  exit 1\nfi\n"
+            },
+            {
+              "name": "Validate nix/hashes.json",
+              "if": "steps.branch.outputs.bot == 'true'",
+              "run": "bash .github/nix-hashes/validate.sh nix/hashes.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "check-docs",
+      "name": "check-docs",
+      "source": ".github/workflows/check-docs.yml",
+      "triggers": {
+        "pull_request": {
+          "types": [
+            "opened",
+            "synchronize",
+            "reopened",
+            "ready_for_review"
+          ],
+          "paths": [
+            "services/site/**",
+            "packages/protocol/openapi.json",
+            "packages/cli/src/config/**",
+            ".github/workflows/check-docs.yml"
+          ]
+        },
+        "workflow_dispatch": ""
+      },
+      "jobs": [
+        {
+          "id": "docs",
+          "if": "${{ !github.event.pull_request.draft }}",
+          "runs-on": "blacksmith-4vcpu-ubuntu-2404",
+          "steps": [
+            {
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "uses": "./.github/actions/setup-bun"
+            },
+            {
+              "name": "Generate",
+              "run": "bun run generate"
+            },
+            {
+              "name": "Build docs",
+              "run": "bun src/docs/script/build.ts --out \"$RUNNER_TEMP/docs\""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "check-nix",
+      "name": "check-nix",
+      "source": ".github/workflows/check-nix.yml",
+      "triggers": {
+        "push": {
+          "branches": [
+            "dev"
+          ]
+        },
+        "pull_request": {
+          "branches": [
+            "dev"
+          ],
+          "types": [
+            "opened",
+            "synchronize",
+            "reopened",
+            "ready_for_review"
+          ]
+        },
+        "workflow_dispatch": ""
+      },
+      "jobs": [
+        {
+          "id": "nix-eval",
+          "if": "${{ !github.event.pull_request.draft }}",
+          "runs-on": "blacksmith-4vcpu-ubuntu-2404",
+          "steps": [
+            {
+              "name": "Checkout repository",
+              "uses": "actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd"
+            },
+            {
+              "name": "Setup Nix",
+              "uses": "nixbuild/nix-quick-install-action@2c9db80fb984ceb1bcaa77cdda3fdf8cfba92035"
+            },
+            {
+              "name": "Evaluate flake outputs (all systems)",
+              "run": "set -euo pipefail\nnix --version\n\necho \"=== Flake metadata ===\"\nnix flake metadata\n\necho \"\"\necho \"=== Flake structure ===\"\nnix flake show --all-systems\n\nSYSTEMS=\"x86_64-linux aarch64-linux aarch64-darwin\"\nPACKAGES=\"opencode\"\n# TODO: move 'desktop' to PACKAGES when #11755 is fixed\nOPTIONAL_PACKAGES=\"desktop\"\n\necho \"\"\necho \"=== Evaluating packages for all systems ===\"\nfor system in $SYSTEMS; do\n  echo \"\"\n  echo \"--- $system ---\"\n  for pkg in $PACKAGES; do\n    printf \"  %s: \" \"$pkg\"\n    if output=$(nix eval \".#packages.$system.$pkg.drvPath\" --raw 2>&1); then\n      echo \"✓\"\n    else\n      echo \"✗\"\n      echo \"::error::Evaluation failed for packages.$system.$pkg\"\n      echo \"$output\"\n      exit 1\n    fi\n  done\ndone\n\necho \"\"\necho \"=== Evaluating optional packages ===\"\nfor system in $SYSTEMS; do\n  echo \"\"\n  echo \"--- $system ---\"\n  for pkg in $OPTIONAL_PACKAGES; do\n    printf \"  %s: \" \"$pkg\"\n    if output=$(nix eval \".#packages.$system.$pkg.drvPath\" --raw 2>&1); then\n      echo \"✓\"\n    else\n      echo \"✗\"\n      echo \"::warning::Evaluation failed for packages.$system.$pkg\"\n      echo \"$output\"\n    fi\n  done\ndone\n\necho \"\"\necho \"=== Evaluating devShells for all systems ===\"\nfor system in $SYSTEMS; do\n  printf \"%s: \" \"$system\"\n  if output=$(nix eval \".#devShells.$system.default.drvPath\" --raw 2>&1); then\n    echo \"✓\"\n  else\n    echo \"✗\"\n    echo \"::error::Evaluation failed for devShells.$system.default\"\n    echo \"$output\"\n    exit 1\n  fi\ndone\n\necho \"\"\necho \"=== All evaluations passed ===\"\n"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "check-process-daemon",
+      "name": "Process daemon",
+      "source": ".github/workflows/check-process-daemon.yml",
+      "triggers": {
+        "pull_request": {
+          "paths": [
+            "packages/process-daemon/**",
+            ".github/actions/prefetch-ghostty/**",
+            ".github/workflows/check-process-daemon.yml"
+          ]
+        },
+        "push": {
+          "branches": [
+            "dev"
+          ],
+          "paths": [
+            "packages/process-daemon/**",
+            ".github/actions/prefetch-ghostty/**",
+            ".github/workflows/check-process-daemon.yml"
+          ]
+        },
+        "workflow_dispatch": ""
+      },
+      "jobs": [
+        {
+          "id": "miri",
+          "runs-on": "ubuntu-22.04",
+          "steps": [
+            {
+              "uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683"
+            },
+            {
+              "name": "Install Miri",
+              "run": "rustup toolchain install nightly-2026-09-02 --profile minimal --component miri --component rust-src"
+            },
+            {
+              "run": "cargo +nightly-2026-09-02 miri setup"
+            },
+            {
+              "name": "Check Stacked Borrows",
+              "run": "cargo +nightly-2026-09-02 miri test --locked --manifest-path tests/ghostty-effects/Cargo.toml\ncargo +nightly-2026-09-02 miri test --locked --manifest-path tests/transport-retained/Cargo.toml\n"
+            },
+            {
+              "name": "Check Tree Borrows",
+              "run": "cargo +nightly-2026-09-02 miri test --locked --manifest-path tests/ghostty-effects/Cargo.toml\ncargo +nightly-2026-09-02 miri test --locked --manifest-path tests/transport-retained/Cargo.toml\n"
+            }
+          ]
+        },
+        {
+          "id": "test",
+          "runs-on": "${{ matrix.os }}",
+          "strategy": {
+            "fail-fast": "false",
+            "matrix": {
+              "os": [
+                "ubuntu-22.04",
+                "blacksmith-6vcpu-macos-15"
+              ]
+            }
+          },
+          "steps": [
+            {
+              "uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683"
+            },
+            {
+              "uses": "mlugg/setup-zig@8d6198c65fb0feaa111df26e6b467fea8345e46f"
+            },
+            {
+              "uses": "./.github/actions/prefetch-ghostty"
+            },
+            {
+              "name": "Install Rust",
+              "run": "rustup toolchain install 1.90.0 --profile minimal --component rustfmt --component clippy"
+            },
+            {
+              "uses": "Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6"
+            },
+            {
+              "run": "cargo fmt --check"
+            },
+            {
+              "run": "cargo clippy --locked --all-targets --all-features -- -D warnings"
+            },
+            {
+              "name": "Test Linux",
+              "if": "runner.os == 'Linux'",
+              "run": "cargo test --locked"
+            },
+            {
+              "name": "Test macOS",
+              "if": "runner.os == 'macOS'",
+              "run": "cargo test --locked --lib --test service --test runtime --test ownership --test pipe --test rows --test ghostty-effects"
+            }
+          ]
+        },
+        {
+          "id": "windows",
+          "runs-on": "${{ matrix.runner }}",
+          "strategy": {
+            "fail-fast": "false",
+            "matrix": {
+              "include": [
+                {
+                  "arch": "x64",
+                  "runner": "windows-2025",
+                  "target": "x86_64-pc-windows-msvc",
+                  "machine": "8664"
+                },
+                {
+                  "arch": "arm64",
+                  "runner": "windows-11-arm",
+                  "target": "aarch64-pc-windows-msvc",
+                  "machine": "aa64"
+                }
+              ]
+            }
+          },
+          "steps": [
+            {
+              "uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683"
+            },
+            {
+              "name": "Enable long dependency paths",
+              "run": "git config --global core.longpaths true"
+            },
+            {
+              "if": "matrix.arch == 'x64'",
+              "uses": "mlugg/setup-zig@8d6198c65fb0feaa111df26e6b467fea8345e46f"
+            },
+            {
+              "name": "Install x64 Zig for ARM64 cross-compilation",
+              "if": "matrix.arch == 'arm64'",
+              "run": "$archive = Join-Path $env:RUNNER_TEMP 'zig-x64.zip'\nInvoke-WebRequest 'https://ziglang.org/download/0.16.0/zig-x86_64-windows-0.16.0.zip' -OutFile $archive\nif ((Get-FileHash $archive -Algorithm SHA256).Hash -ne '68659eb5f1e4eb1437a722f1dd889c5a322c9954607f5edcf337bc3684a75a7e') { throw 'Zig archive checksum mismatch' }\nExpand-Archive $archive -DestinationPath $env:RUNNER_TEMP\nJoin-Path $env:RUNNER_TEMP 'zig-x86_64-windows-0.16.0' >> $env:GITHUB_PATH\n"
+            },
+            {
+              "name": "Fix Zig 0.16 ARM64 function-pointer alignment",
+              "if": "matrix.arch == 'arm64'",
+              "run": "# ARM64 function pointers require 4-byte alignment, unlike *anyopaque.\n# Zig 0.16's Windows stack-trace helper omits the required alignment assertion.\n$file = Join-Path $env:RUNNER_TEMP 'zig-x86_64-windows-0.16.0/lib/std/debug/SelfInfo/Windows.zig'\n$source = [System.IO.File]::ReadAllText($file)\n$old = '@ptrCast(try si.loadNtdllProc(@tagName(proc)))'\nif (!$source.Contains($old)) { throw 'Zig alignment workaround no longer matches; re-evaluate it' }\n[System.IO.File]::WriteAllText($file, $source.Replace($old, '@ptrCast(@alignCast(try si.loadNtdllProc(@tagName(proc))))'))\n"
+            },
+            {
+              "name": "Pin MSVC 14.51 for Zig's Clang 21",
+              "run": "$installer = \"${env:ProgramFiles(x86)}\\Microsoft Visual Studio\\Installer\"\n$vs = & \"$installer\\vswhere.exe\" -latest -products * -property installationPath\n$tools = \"$vs\\VC\\Tools\\MSVC\"\n$arch = '${{ matrix.arch }}'\n$hasRuntimes = {\n  (Test-Path \"$($_.FullName)\\lib\\x64\\vcruntime.lib\") -and\n    (Test-Path \"$($_.FullName)\\lib\\$arch\\vcruntime.lib\")\n}\nif (!(Get-ChildItem $tools -Directory -Filter '14.51.*' | Where-Object $hasRuntimes)) {\n  $components = '--add Microsoft.VisualStudio.Component.VC.14.51.x86.x64'\n  if ($arch -eq 'arm64') { $components += ' --add Microsoft.VisualStudio.Component.VC.14.51.ARM64' }\n  $setup = Start-Process \"$installer\\setup.exe\" -ArgumentList \"modify --installPath `\"$vs`\" $components --quiet --norestart\" -Wait -PassThru\n  if ($setup.ExitCode -notin 0, 3010) { throw \"VS installer exited with $($setup.ExitCode)\" }\n  Write-Output \"MSVC 14.51 installer exited with $($setup.ExitCode) for $arch\"\n}\n$toolset = Get-ChildItem $tools -Directory -Filter '14.51.*' |\n  Where-Object $hasRuntimes |\n  Sort-Object { [version]$_.Name } -Descending | Select-Object -First 1\nif (!$toolset) { throw \"Missing MSVC 14.51 for $arch\" }\n# Zig reads this file for both host and target tools on the disposable runner.\nSet-Content \"$vs\\VC\\Auxiliary\\Build\\Microsoft.VCToolsVersion.default.txt\" $toolset.Name -Encoding ascii\n$libc = zig libc\n$libc\nif ($LASTEXITCODE -ne 0 -or $libc -inotcontains \"sys_include_dir=$($toolset.FullName)\\include\") { throw 'Zig selected unexpected MSVC headers' }\n"
+            },
+            {
+              "name": "Install Rust toolchain and target",
+              "run": "rustup toolchain install $env:RUSTUP_TOOLCHAIN --force-non-host --profile minimal --component rustfmt --component clippy --target $env:CARGO_BUILD_TARGET"
+            },
+            {
+              "name": "Verify runner and compiler architecture",
+              "run": "$arch = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString()\nWrite-Output \"Windows architecture: $arch\"\nif ($arch -ine $env:EXPECTED_ARCH) { throw \"Expected native $env:EXPECTED_ARCH runner, got $arch\" }\n$compiler = rustc -vV\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\n$compiler\nif ($compiler -notcontains 'host: x86_64-pc-windows-msvc') { throw 'Unexpected Rust compiler host' }\nWrite-Output \"Executable target: $env:CARGO_BUILD_TARGET\"\nzig version\n"
+            },
+            {
+              "uses": "./.github/actions/prefetch-ghostty"
+            },
+            {
+              "uses": "Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6"
+            },
+            {
+              "name": "Check formatting",
+              "run": "cargo fmt --check"
+            },
+            {
+              "name": "Check Clippy",
+              "run": "cargo clippy --locked --all-targets --all-features -- -D warnings"
+            },
+            {
+              "name": "Build executable",
+              "run": "cargo build --locked"
+            },
+            {
+              "name": "Run tests",
+              "run": "cargo test --locked --all-targets --all-features"
+            },
+            {
+              "name": "Run standalone library tests",
+              "run": "$artifacts = cargo test --locked --lib --no-run --message-format=json | ForEach-Object { $_ | ConvertFrom-Json }\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\n$binary = ($artifacts | Where-Object { $_.reason -eq 'compiler-artifact' -and $_.profile.test -and $_.executable }).executable\n# Cargo adds native library paths to PATH, which can hide accidental DLL dependencies.\n# Copy only the executable so neither Cargo nor adjacent build artifacts can supply them.\n$directory = Join-Path $env:RUNNER_TEMP 'pty-standalone-tests'\nNew-Item -ItemType Directory -Force $directory | Out-Null\n$standalone = Join-Path $directory 'opencode-pty-tests.exe'\nCopy-Item $binary $standalone\n$bytes = [System.IO.File]::ReadAllBytes($standalone)\n$header = [BitConverter]::ToInt32($bytes, 0x3c)\n$machine = [BitConverter]::ToUInt16($bytes, $header + 4)\nif ($machine -ne [Convert]::ToUInt16($env:EXPECTED_MACHINE, 16)) { throw 'Test executable architecture does not match the runner' }\n& $standalone\n"
+            },
+            {
+              "name": "Diagnose failed library tests",
+              "if": "failure() && steps.tests.outcome == 'failure'",
+              "run": "cargo test --locked --lib --all-features -- --test-threads=1 --nocapture"
+            },
+            {
+              "name": "Diagnose failed runtime tests",
+              "if": "failure() && steps.tests.outcome == 'failure'",
+              "run": "cargo test --locked --test runtime -- --test-threads=1 --nocapture"
+            },
+            {
+              "name": "Diagnose failed daemon tests",
+              "if": "failure() && steps.tests.outcome == 'failure'",
+              "run": "cargo test --locked --test windows-daemon -- --test-threads=1 --nocapture"
+            },
+            {
+              "name": "Smoke test executable",
+              "if": "${{ !cancelled() && steps.build.outcome == 'success' }}",
+              "run": "$metadata = cargo metadata --locked --no-deps --format-version 1 | ConvertFrom-Json\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\n$version = ($metadata.packages | Where-Object name -eq 'opencode-pty').version\n$binary = Join-Path $metadata.target_directory \"$env:CARGO_BUILD_TARGET/debug/opencode-pty.exe\"\n$output = & $binary --version\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\nWrite-Output $output\nif ($output -notmatch \"^opencode-pty $([regex]::Escape($version)) \\(protocol \\d+\\)$\") { throw \"Unexpected executable version: $output\" }\n"
+            },
+            {
+              "name": "Document current coverage",
+              "if": "always()",
+              "run": "@\"\n## Windows ${{ matrix.arch }}\n\nTarget: $env:CARGO_BUILD_TARGET\n\nThis job builds the executable and runs all enabled tests natively, including libghostty parser, protocol, direct TerminalService ConPTY runtime, named-pipe transport, and daemon tests.\nThe runtime suite spawns real Rust console children and checks input/output, Unicode, cwd/environment/argv/PATH, OS resize, snapshots, replay, terminal replies, and independent terminals.\nDaemon tests cover private atomic registration, ownership/handoff, stale registration/locking, partial requests, blocked subscribers, and live ConPTY operations over real named pipes.\nThe older service, ownership, playground, and rows integration suites remain Unix-only.\nBasic tests do not establish exhaustive lifecycle coverage or Windows interactive CLI parity.\nNo packages or releases are published.\n\"@ >> $env:GITHUB_STEP_SUMMARY\n"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "check-test",
+      "name": "check-test",
+      "source": ".github/workflows/check-test.yml",
+      "triggers": {
+        "push": {
+          "branches": [
+            "dev",
+            "beta"
+          ]
+        },
+        "pull_request": {
+          "types": [
+            "opened",
+            "synchronize",
+            "reopened",
+            "ready_for_review"
+          ]
+        },
+        "workflow_dispatch": {
+          "inputs": {
+            "quarantine": {
+              "description": "Run only the quarantined browser tests (packages/app/e2e/QUARANTINE.md)",
+              "type": "boolean",
+              "default": "false"
+            }
+          }
+        },
+        "workflow_call": {
+          "inputs": {
+            "quarantine": {
+              "description": "Run only the quarantined browser tests (packages/app/e2e/QUARANTINE.md)",
+              "type": "boolean",
+              "default": "false"
+            },
+            "release_gate": {
+              "description": "Run the browser suites on Linux only",
+              "type": "boolean",
+              "default": "false"
+            }
+          }
+        }
+      },
+      "jobs": [
+        {
+          "id": "affected",
+          "if": "${{ !github.event.pull_request.draft && github.event_name != 'pull_request' }}",
+          "runs-on": "blacksmith-4vcpu-ubuntu-2404",
+          "steps": [
+            {
+              "name": "Checkout repository",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Setup Bun",
+              "uses": "oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6"
+            },
+            {
+              "name": "Find affected packages",
+              "run": "if [ \"$AFFECTED\" != \"true\" ]; then\n  echo \"app=true\" >> \"$GITHUB_OUTPUT\"\n  exit 0\nfi\n# packages/stories hosts the component tests, but no app package depends on it.\nbun x turbo@2.10.2 ls --affected --filter=@opencode/app --filter=@opencode/stories --output=json > affected.json\nbun -e 'const result = await Bun.file(\"affected.json\").json(); console.log(`app=${result.packages.count > 0}`)' >> \"$GITHUB_OUTPUT\"\n"
+            }
+          ]
+        },
+        {
+          "id": "unit",
+          "if": "${{ !inputs.quarantine && !github.event.pull_request.draft }}",
+          "runs-on": "${{ matrix.settings.host }}",
+          "strategy": {
+            "fail-fast": "false",
+            "matrix": {
+              "settings": "${{ fromJSON(github.event_name == 'pull_request' && '[{\"name\":\"linux\",\"host\":\"blacksmith-4vcpu-ubuntu-2404\"}]' || '[{\"name\":\"linux\",\"host\":\"blacksmith-4vcpu-ubuntu-2404\"},{\"name\":\"windows\",\"host\":\"blacksmith-4vcpu-windows-2025\"}]') }}"
+            }
+          },
+          "steps": [
+            {
+              "name": "Checkout repository",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Setup Node",
+              "uses": "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
+            },
+            {
+              "name": "Setup Bun",
+              "uses": "./.github/actions/setup-bun"
+            },
+            {
+              "name": "Test Effect simplification rules",
+              "if": "runner.os == 'Linux'",
+              "run": "bun run test:effect-simplification-rules"
+            },
+            {
+              "name": "Check Effect simplifications",
+              "if": "runner.os == 'Linux'",
+              "run": "bun run lint:effect-simplifications"
+            },
+            {
+              "name": "Configure git identity",
+              "run": "git config --global user.email \"bot@opencode.ai\"\ngit config --global user.name \"opencode\"\n"
+            },
+            {
+              "name": "Run unit tests",
+              "run": "# The runners have four vCPUs, and each Bun test process performs its own concurrent work.\nif [ \"$AFFECTED\" = \"true\" ]; then\n  GITHUB_ACTIONS=false bun turbo test --affected --concurrency=3\n  exit 0\nfi\nGITHUB_ACTIONS=false bun turbo test --concurrency=3\n"
+            },
+            {
+              "name": "Verify packed codemode package",
+              "if": "runner.os == 'Linux'",
+              "run": "bun run pack",
+              "working-directory": "packages/codemode"
+            },
+            {
+              "name": "Verify packed workerd SDK",
+              "if": "runner.os == 'Linux'",
+              "run": "if [ \"$AFFECTED\" = \"true\" ]; then\n  bun turbo verify:package --affected --filter=@opencode/sdk\n  exit 0\nfi\nbun turbo verify:package --filter=@opencode/sdk\n"
+            },
+            {
+              "name": "Check generated client",
+              "if": "runner.os == 'Linux'",
+              "run": "bun run check:generated",
+              "working-directory": "packages/client"
+            },
+            {
+              "name": "Check generated OpenAPI document",
+              "if": "runner.os == 'Linux'",
+              "run": "bun run check:generated",
+              "working-directory": "packages/protocol"
+            }
+          ]
+        },
+        {
+          "id": "build",
+          "if": "${{ !inputs.quarantine && github.event_name != 'pull_request' && !github.event.pull_request.draft }}",
+          "runs-on": "${{ matrix.settings.host }}",
+          "strategy": {
+            "fail-fast": "false",
+            "matrix": {
+              "settings": [
+                {
+                  "name": "linux",
+                  "host": "blacksmith-4vcpu-ubuntu-2404"
+                },
+                {
+                  "name": "windows",
+                  "host": "blacksmith-4vcpu-windows-2025"
+                }
+              ]
+            }
+          },
+          "steps": [
+            {
+              "name": "Checkout repository",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Setup Bun",
+              "uses": "./.github/actions/setup-bun"
+            },
+            {
+              "name": "Verify compiled service lifecycle",
+              "run": "bun run script/build.ts --single --skip-install\nbun run script/service-smoke.ts\n",
+              "working-directory": "packages/cli"
+            },
+            {
+              "name": "Build workspace libraries",
+              "if": "${{ !cancelled() && runner.os == 'Linux' }}",
+              "run": "if [ \"$AFFECTED\" = \"true\" ]; then\n  bun turbo build --affected --concurrency=3 --filter='@opencode/cli^...' --filter='@opencode/app^...'\n  exit 0\nfi\nbun turbo build --concurrency=3 --filter='@opencode/cli^...' --filter='@opencode/app^...'\n"
+            },
+            {
+              "name": "Setup Node build runtime",
+              "if": "${{ !cancelled() }}",
+              "uses": "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
+            },
+            {
+              "name": "Verify Node build",
+              "if": "${{ !cancelled() }}",
+              "run": "bun run script/build-node.ts --single --skip-install --outdir=dist/node\nbun run script/service-smoke.ts --node\n",
+              "working-directory": "packages/cli"
+            }
+          ]
+        },
+        {
+          "id": "e2e-suite",
+          "needs": "affected",
+          "if": "needs.affected.outputs.e2e == 'true'",
+          "runs-on": "${{ matrix.settings.host }}",
+          "strategy": {
+            "fail-fast": "false",
+            "matrix": {
+              "settings": "${{ fromJSON(inputs.release_gate && '[{\"name\":\"linux\",\"host\":\"blacksmith-4vcpu-ubuntu-2404\"}]' || '[{\"name\":\"linux\",\"host\":\"blacksmith-4vcpu-ubuntu-2404\"},{\"name\":\"windows\",\"host\":\"blacksmith-4vcpu-windows-2025\"}]') }}",
+              "quarantine": "${{ fromJSON(inputs.quarantine && '[true]' || '[false]') }}",
+              "suite": [
+                {
+                  "id": "app-1",
+                  "shard": "1/2"
+                },
+                {
+                  "id": "app-2",
+                  "shard": "2/2"
+                },
+                {
+                  "id": "session-ui-components"
+                },
+                {
+                  "id": "app-components"
+                }
+              ]
+            }
+          },
+          "steps": [
+            {
+              "name": "Checkout repository",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Setup Node",
+              "uses": "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
+            },
+            {
+              "name": "Setup Bun",
+              "uses": "./.github/actions/setup-bun"
+            },
+            {
+              "name": "Read Playwright version",
+              "run": "version=$(node -e 'console.log(require(\"./package.json\").workspaces.catalog[\"@playwright/test\"])')\necho \"version=$version\" >> \"$GITHUB_OUTPUT\"\n"
+            },
+            {
+              "name": "Cache Playwright browsers",
+              "uses": "actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830"
+            },
+            {
+              "name": "Install Playwright system dependencies",
+              "if": "runner.os == 'Linux'",
+              "run": "bunx playwright install-deps chromium",
+              "working-directory": "packages/app"
+            },
+            {
+              "name": "Install Playwright browsers",
+              "if": "steps.playwright-cache.outputs.cache-hit != 'true'",
+              "run": "bunx playwright install chromium",
+              "working-directory": "packages/app"
+            },
+            {
+              "name": "Run app e2e tests against production build",
+              "if": "matrix.suite.shard",
+              "run": "bun --cwd packages/app test:e2e:built --shard=${{ matrix.suite.shard }} ${{ env.PLAYWRIGHT_ARGS }}"
+            },
+            {
+              "name": "Verify service worker precaching and upgrades",
+              "if": "matrix.suite.shard == '2/2' && !matrix.quarantine",
+              "run": "bunx playwright test --config e2e/service-worker/playwright.config.ts",
+              "working-directory": "packages/app"
+            },
+            {
+              "name": "Run session UI component tests",
+              "if": "matrix.suite.id == 'session-ui-components'",
+              "run": "bun --cwd packages/session-ui test:components ${{ env.PLAYWRIGHT_ARGS }}"
+            },
+            {
+              "name": "Run app component tests",
+              "if": "matrix.suite.id == 'app-components'",
+              "run": "bun --cwd packages/app test:components ${{ env.PLAYWRIGHT_ARGS }}"
+            },
+            {
+              "name": "Upload Playwright artifacts",
+              "if": "always()",
+              "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+            }
+          ]
+        },
+        {
+          "id": "e2e",
+          "needs": [
+            "affected",
+            "e2e-suite"
+          ],
+          "if": "${{ !cancelled() && !inputs.quarantine && github.event_name != 'pull_request' && !github.event.pull_request.draft }}",
+          "runs-on": "ubuntu-24.04",
+          "strategy": {
+            "fail-fast": "false",
+            "matrix": {
+              "os": [
+                "linux",
+                "windows"
+              ]
+            }
+          },
+          "steps": [
+            {
+              "name": "Check browser test results",
+              "run": "echo \"affected packages: $AFFECTED, browser test legs: $SUITES (expected $EXPECTED)\"\ntest \"$AFFECTED\" = success && test \"$SUITES\" = \"$EXPECTED\"\n"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "check",
+      "name": "check",
+      "source": ".github/workflows/check.yml",
+      "triggers": {
+        "push": {
+          "branches": [
+            "dev"
+          ]
+        },
+        "pull_request": {
+          "branches": [
+            "dev",
+            "beta"
+          ],
+          "types": [
+            "opened",
+            "synchronize",
+            "reopened",
+            "ready_for_review"
+          ]
+        },
+        "workflow_dispatch": ""
+      },
+      "jobs": [
+        {
+          "id": "check",
+          "if": "${{ !github.event.pull_request.draft }}",
+          "runs-on": "blacksmith-4vcpu-ubuntu-2404",
+          "steps": [
+            {
+              "name": "Checkout repository",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Setup Bun",
+              "uses": "./.github/actions/setup-bun"
+            },
+            {
+              "name": "Lint",
+              "run": "bun run lint"
+            },
+            {
+              "name": "Typecheck (TypeScript 7.1)",
+              "run": "bun run typecheck:tsc"
+            },
+            {
+              "name": "Lint changed files",
+              "if": "github.event_name == 'pull_request'",
+              "run": "bun run lint:changed HEAD^1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "deploy-files",
+      "name": "deploy-files",
+      "source": ".github/workflows/deploy-files.yml",
+      "triggers": {
+        "push": {
+          "branches": [
+            "dev",
+            "production"
+          ]
+        },
+        "workflow_dispatch": ""
+      },
+      "jobs": [
+        {
+          "id": "files-build",
+          "if": "github.repository == 'anomalyco/opencode' && (github.ref_name == 'dev' || github.ref_name == 'production')",
+          "runs-on": "blacksmith-4vcpu-ubuntu-2404",
+          "steps": [
+            {
+              "uses": "actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744"
+            },
+            {
+              "uses": "./.github/actions/setup-bun"
+            },
+            {
+              "name": "Typecheck",
+              "run": "bun run typecheck:tsc",
+              "working-directory": "services/files"
+            },
+            {
+              "name": "Build",
+              "run": "artifact=\"$RUNNER_TEMP/files-artifact\"\nrm -rf \"$artifact\"\n./node_modules/.bin/wrangler deploy --dry-run \\\n  --env ${{ github.ref_name == 'production' && 'production' || 'dev' }} \\\n  --outdir \"$artifact\"\n# wrangler writes a README next to the bundle; the deploy only needs index.js.\nrm -f \"$artifact/README.md\" \"$artifact/index.js.map\"\n",
+              "working-directory": "services/files"
+            },
+            {
+              "uses": "./.github/release/upload"
+            }
+          ]
+        },
+        {
+          "id": "files-deploy",
+          "needs": "files-build",
+          "if": "github.repository == 'anomalyco/opencode' && (github.ref_name == 'dev' || github.ref_name == 'production')",
+          "runs-on": "blacksmith-4vcpu-ubuntu-2404",
+          "steps": [
+            {
+              "name": "Check out the deploy scripts",
+              "uses": "actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744"
+            },
+            {
+              "uses": "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
+            },
+            {
+              "name": "Install the pinned wrangler CLI",
+              "run": "npm ci --ignore-scripts --no-audit --no-fund",
+              "working-directory": ".github/release/wrangler"
+            },
+            {
+              "name": "Download",
+              "uses": "./.github/release/download"
+            },
+            {
+              "name": "Configure AWS credentials",
+              "uses": "aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd"
+            },
+            {
+              "name": "Cloudflare token",
+              "run": "bash .github/release/cloudflare-token.sh \"$GITHUB_REF_NAME\""
+            },
+            {
+              "name": "Deploy",
+              "run": "bash .github/release/deploy-files.sh \"$STAGE\" \"$RUNNER_TEMP/in/files-$STAGE\""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "deploy-site",
+      "name": "deploy-site",
+      "source": ".github/workflows/deploy-site.yml",
+      "triggers": {
+        "push": {
+          "branches": [
+            "dev",
+            "production"
+          ]
+        },
+        "workflow_dispatch": ""
+      },
+      "jobs": [
+        {
+          "id": "site-build",
+          "if": "github.repository == 'anomalyco/opencode' && (github.ref_name == 'dev' || github.ref_name == 'production')",
+          "runs-on": "blacksmith-4vcpu-ubuntu-2404",
+          "steps": [
+            {
+              "uses": "actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744"
+            },
+            {
+              "uses": "./.github/actions/setup-bun"
+            },
+            {
+              "name": "Build",
+              "run": "bun script/build.ts --mode ${{ github.ref_name }}",
+              "working-directory": "services/site"
+            },
+            {
+              "uses": "./.github/release/upload"
+            }
+          ]
+        },
+        {
+          "id": "site-deploy",
+          "needs": "site-build",
+          "if": "github.repository == 'anomalyco/opencode' && (github.ref_name == 'dev' || github.ref_name == 'production')",
+          "runs-on": "blacksmith-4vcpu-ubuntu-2404",
+          "steps": [
+            {
+              "name": "Check out the deploy scripts",
+              "uses": "actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744"
+            },
+            {
+              "uses": "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
+            },
+            {
+              "name": "Install the pinned cf CLI",
+              "run": "npm ci --ignore-scripts --no-audit --no-fund",
+              "working-directory": ".github/release/cf"
+            },
+            {
+              "name": "Download",
+              "uses": "./.github/release/download"
+            },
+            {
+              "name": "Configure AWS credentials",
+              "uses": "aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd"
+            },
+            {
+              "name": "Cloudflare token",
+              "run": "bash .github/release/cloudflare-token.sh \"$GITHUB_REF_NAME\""
+            },
+            {
+              "name": "Deploy",
+              "run": "bash .github/release/deploy-site.sh \"$STAGE\" \"$RUNNER_TEMP/in/site-$STAGE\""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "deploy-update",
+      "name": "deploy-update",
+      "source": ".github/workflows/deploy-update.yml",
+      "triggers": {
+        "push": {
+          "branches": [
+            "production"
+          ]
+        },
+        "workflow_dispatch": ""
+      },
+      "jobs": [
+        {
+          "id": "update-build",
+          "if": "github.repository == 'anomalyco/opencode' && github.ref_name == 'production'",
+          "runs-on": "blacksmith-4vcpu-ubuntu-2404",
+          "steps": [
+            {
+              "uses": "actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744"
+            },
+            {
+              "uses": "./.github/actions/setup-bun"
+            },
+            {
+              "name": "Typecheck",
+              "run": "bun run typecheck:tsc",
+              "working-directory": "services/update"
+            },
+            {
+              "name": "Build",
+              "run": "artifact=\"$RUNNER_TEMP/update-artifact\"\nrm -rf \"$artifact\"\n./node_modules/.bin/wrangler deploy --dry-run --outdir \"$artifact\"\n# wrangler writes a README next to the bundle; the deploy only needs index.js.\nrm -f \"$artifact/README.md\" \"$artifact/index.js.map\"\n",
+              "working-directory": "services/update"
+            },
+            {
+              "uses": "./.github/release/upload"
+            }
+          ]
+        },
+        {
+          "id": "update-deploy",
+          "needs": "update-build",
+          "if": "github.repository == 'anomalyco/opencode' && github.ref_name == 'production'",
+          "runs-on": "blacksmith-4vcpu-ubuntu-2404",
+          "steps": [
+            {
+              "name": "Check out the deploy scripts",
+              "uses": "actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744"
+            },
+            {
+              "uses": "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
+            },
+            {
+              "name": "Install the pinned wrangler CLI",
+              "run": "npm ci --ignore-scripts --no-audit --no-fund",
+              "working-directory": ".github/release/wrangler"
+            },
+            {
+              "name": "Download",
+              "uses": "./.github/release/download"
+            },
+            {
+              "name": "Configure AWS credentials",
+              "uses": "aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd"
+            },
+            {
+              "name": "Cloudflare token",
+              "run": "bash .github/release/cloudflare-token.sh"
+            },
+            {
+              "name": "Deploy",
+              "run": "bash .github/release/deploy-update.sh production \"$RUNNER_TEMP/in/update-production\""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "deploy",
+      "name": "deploy",
+      "source": ".github/workflows/deploy.yml",
+      "triggers": {
+        "push": {
+          "branches": [
+            "dev",
+            "production"
+          ]
+        },
+        "workflow_dispatch": ""
+      },
+      "jobs": [
+        {
+          "id": "legacy-build",
+          "if": "github.repository == 'anomalyco/opencode' && (github.ref_name == 'dev' || github.ref_name == 'production')",
+          "runs-on": "blacksmith-4vcpu-ubuntu-2404",
+          "steps": [
+            {
+              "uses": "actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744"
+            },
+            {
+              "uses": "./.github/actions/setup-bun"
+            },
+            {
+              "name": "Build",
+              "run": "./node_modules/.bin/cf build --mode ${{ github.ref_name }}",
+              "working-directory": "services/legacy"
+            },
+            {
+              "uses": "./.github/release/upload"
+            }
+          ]
+        },
+        {
+          "id": "legacy-deploy",
+          "needs": "legacy-build",
+          "if": "github.repository == 'anomalyco/opencode' && (github.ref_name == 'dev' || github.ref_name == 'production')",
+          "runs-on": "blacksmith-4vcpu-ubuntu-2404",
+          "steps": [
+            {
+              "name": "Check out the deploy scripts",
+              "uses": "actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744"
+            },
+            {
+              "uses": "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
+            },
+            {
+              "name": "Install the pinned cf CLI",
+              "run": "npm ci --ignore-scripts --no-audit --no-fund",
+              "working-directory": ".github/release/cf"
+            },
+            {
+              "name": "Download",
+              "uses": "./.github/release/download"
+            },
+            {
+              "name": "Configure AWS credentials",
+              "uses": "aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd"
+            },
+            {
+              "name": "Cloudflare token",
+              "run": "bash .github/release/cloudflare-token.sh \"$GITHUB_REF_NAME\""
+            },
+            {
+              "name": "Deploy",
+              "run": "if [[ \"$STAGE\" == dev ]]; then\n  exec bash .github/release/deploy-legacy.sh dev \"$RUNNER_TEMP/in/legacy-dev\"\nfi\numask 077\nsecrets=\"$RUNNER_TEMP/legacy-secrets.json\"\ntrap 'rm -f \"$secrets\"' EXIT\nfor name in GITHUB_APP_ID GITHUB_APP_PRIVATE_KEY; do\n  aws secretsmanager get-secret-value --secret-id \"opencode/production/$name\" --output json |\n    jq --arg name \"$name\" '{($name): .SecretString}'\ndone | jq -s add > \"$secrets\"\nbash .github/release/deploy-legacy.sh \"$STAGE\" \"$RUNNER_TEMP/in/legacy-$STAGE\" \"$secrets\"\n"
+            }
+          ]
+        },
+        {
+          "id": "data-build",
+          "if": "github.repository == 'anomalyco/opencode' && (github.ref_name == 'dev' || github.ref_name == 'production')",
+          "runs-on": "blacksmith-4vcpu-ubuntu-2404",
+          "steps": [
+            {
+              "uses": "actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744"
+            },
+            {
+              "uses": "./.github/actions/setup-bun"
+            },
+            {
+              "name": "Build",
+              "run": "bun script/build.ts --mode ${{ github.ref_name }}",
+              "working-directory": "services/data"
+            },
+            {
+              "uses": "./.github/release/upload"
+            }
+          ]
+        },
+        {
+          "id": "data-deploy",
+          "needs": "data-build",
+          "if": "github.repository == 'anomalyco/opencode' && (github.ref_name == 'dev' || github.ref_name == 'production')",
+          "runs-on": "blacksmith-4vcpu-ubuntu-2404",
+          "steps": [
+            {
+              "name": "Check out the deploy scripts",
+              "uses": "actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744"
+            },
+            {
+              "uses": "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
+            },
+            {
+              "name": "Install the pinned cf CLI",
+              "run": "npm ci --ignore-scripts --no-audit --no-fund",
+              "working-directory": ".github/release/cf"
+            },
+            {
+              "name": "Download",
+              "uses": "./.github/release/download"
+            },
+            {
+              "name": "Configure AWS credentials",
+              "uses": "aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd"
+            },
+            {
+              "name": "Cloudflare token",
+              "run": "bash .github/release/cloudflare-token.sh \"$GITHUB_REF_NAME\""
+            },
+            {
+              "name": "Deploy",
+              "run": "umask 077\nsecrets=\"$RUNNER_TEMP/data-secrets.json\"\ntrap 'rm -f \"$secrets\" \"$secrets\".*' EXIT\nfor name in DATA_DATABASE_HOST DATA_DATABASE_USERNAME DATA_DATABASE_PASSWORD R2_SQL_AUTH_TOKEN DATA_HIDDEN_MODELS; do\n  aws secretsmanager get-secret-value --secret-id \"opencode/$STAGE/$name\" --output json |\n    jq --arg name \"$name\" '{($name): .SecretString}'\ndone | jq -s add > \"$secrets\"\nbash .github/release/deploy-data.sh \"$STAGE\" \"$RUNNER_TEMP/in/data-$STAGE\" \"$secrets\"\n"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "nightly-beta",
+      "name": "nightly-beta",
+      "source": ".github/workflows/nightly-beta.yml",
+      "triggers": {
+        "schedule": [
+          {
+            "cron": "17 9 * * *"
+          }
+        ],
+        "workflow_dispatch": ""
+      },
+      "jobs": [
+        {
+          "id": "dispatch",
+          "if": "github.repository == 'anomalyco/opencode'",
+          "runs-on": "ubuntu-latest",
+          "steps": [
+            {
+              "name": "Dispatch beta test runs",
+              "run": "gh workflow run check-test.yml --repo \"$GITHUB_REPOSITORY\" --ref beta\ngh workflow run check-test.yml --repo \"$GITHUB_REPOSITORY\" --ref beta -f quarantine=true\n"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "release-process-daemon",
+      "name": "Process daemon release",
+      "source": ".github/workflows/release-process-daemon.yml",
+      "triggers": {
+        "push": {
+          "tags": [
+            "process-daemon-v*"
+          ]
+        },
+        "pull_request": {
+          "paths": [
+            ".github/actions/prefetch-ghostty/**",
+            ".github/workflows/release-process-daemon.yml",
+            "packages/process-daemon/build.rs",
+            "packages/process-daemon/ghostty-revision",
+            "packages/process-daemon/npm/**",
+            "packages/process-daemon/script/npm-packages.mjs"
+          ]
+        },
+        "workflow_dispatch": ""
+      },
+      "jobs": [
+        {
+          "id": "checks",
+          "runs-on": "ubuntu-22.04",
+          "steps": [
+            {
+              "uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683"
+            },
+            {
+              "uses": "mlugg/setup-zig@8d6198c65fb0feaa111df26e6b467fea8345e46f"
+            },
+            {
+              "uses": "./.github/actions/prefetch-ghostty"
+            },
+            {
+              "name": "Configure baseline Zig builds",
+              "run": "chmod +x \"$GITHUB_WORKSPACE/packages/process-daemon/script/release-bin/zig\"\necho \"OPENCODE_REAL_ZIG=$(command -v zig)\" >> \"$GITHUB_ENV\"\necho \"$GITHUB_WORKSPACE/packages/process-daemon/script/release-bin\" >> \"$GITHUB_PATH\"\n"
+            },
+            {
+              "name": "Install Rust",
+              "run": "rustup toolchain install 1.90.0 --profile minimal --component clippy --component rustfmt"
+            },
+            {
+              "name": "Read protocol version",
+              "run": "protocol=\"$(sed -nE 's/^pub const PROTOCOL_VERSION: u32 = ([0-9]+);$/\\1/p' src/protocol.rs)\"\ntest -n \"$protocol\"\necho \"protocol=$protocol\" >> \"$GITHUB_OUTPUT\"\n"
+            },
+            {
+              "name": "Validate tag",
+              "run": "package_version=\"$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == \"opencode-pty\") | .version')\"\nnpm_version=\"$(node -p 'require(\"./npm/package.json\").version')\"\ntest \"$package_version\" = \"$npm_version\"\nnode -e 'const pkg = require(\"./npm/package.json\"); if (Object.values(pkg.optionalDependencies).some(version => version !== pkg.version)) process.exit(1)'\nif [[ \"$GITHUB_REF\" == refs/tags/* ]]; then\n  [[ \"$GITHUB_REF_NAME\" =~ ^process-daemon-v[0-9]+\\.[0-9]+\\.[0-9]+([+-][0-9A-Za-z.-]+)?$ ]]\n  test \"${GITHUB_REF_NAME#process-daemon-v}\" = \"$package_version\"\nfi\n"
+            },
+            {
+              "run": "cargo fmt --check"
+            },
+            {
+              "run": "cargo clippy --all-targets --all-features -- -D warnings"
+            }
+          ]
+        },
+        {
+          "id": "build",
+          "needs": "checks",
+          "runs-on": "${{ matrix.runner }}",
+          "strategy": {
+            "fail-fast": "false",
+            "matrix": {
+              "include": [
+                {
+                  "runner": "ubuntu-22.04",
+                  "target": "x86_64-unknown-linux-gnu"
+                },
+                {
+                  "runner": "ubuntu-22.04-arm",
+                  "target": "aarch64-unknown-linux-gnu"
+                },
+                {
+                  "runner": "ubuntu-22.04",
+                  "target": "x86_64-unknown-linux-musl",
+                  "musl": "true"
+                },
+                {
+                  "runner": "ubuntu-22.04-arm",
+                  "target": "aarch64-unknown-linux-musl",
+                  "musl": "true"
+                },
+                {
+                  "runner": "macos-15-intel",
+                  "target": "x86_64-apple-darwin"
+                },
+                {
+                  "runner": "blacksmith-6vcpu-macos-15",
+                  "target": "aarch64-apple-darwin"
+                }
+              ]
+            }
+          },
+          "steps": [
+            {
+              "uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683"
+            },
+            {
+              "uses": "mlugg/setup-zig@8d6198c65fb0feaa111df26e6b467fea8345e46f"
+            },
+            {
+              "uses": "./.github/actions/prefetch-ghostty"
+            },
+            {
+              "name": "Configure baseline Zig builds",
+              "run": "chmod +x \"$GITHUB_WORKSPACE/packages/process-daemon/script/release-bin/zig\"\necho \"OPENCODE_REAL_ZIG=$(command -v zig)\" >> \"$GITHUB_ENV\"\necho \"$GITHUB_WORKSPACE/packages/process-daemon/script/release-bin\" >> \"$GITHUB_PATH\"\n"
+            },
+            {
+              "name": "Install musl toolchain",
+              "if": "matrix.musl",
+              "run": "sudo apt-get update && sudo apt-get install -y musl-tools"
+            },
+            {
+              "name": "Install Rust target",
+              "run": "rustup toolchain install 1.90.0 --profile minimal --target \"${{ matrix.target }}\""
+            },
+            {
+              "name": "Install glibc baseline linker",
+              "if": "endsWith(matrix.target, '-linux-gnu')",
+              "run": "cargo install cargo-zigbuild --locked --version \"$CARGO_ZIGBUILD_VERSION\""
+            },
+            {
+              "name": "Test service",
+              "run": "cargo test --locked --target \"${{ matrix.target }}\" --lib --test service --test ownership"
+            },
+            {
+              "name": "Test CLI integration",
+              "if": "runner.os != 'macOS'",
+              "run": "cargo test --locked --target \"${{ matrix.target }}\" --test playground"
+            },
+            {
+              "name": "Build",
+              "run": "if [[ \"${{ matrix.target }}\" == *-linux-gnu ]]; then\n  cargo zigbuild --locked --release --target \"${{ matrix.target }}.$GNU_GLIBC_VERSION\"\nelse\n  cargo build --locked --release --target \"${{ matrix.target }}\"\nfi\n"
+            },
+            {
+              "name": "Verify glibc baseline",
+              "if": "endsWith(matrix.target, '-linux-gnu')",
+              "run": "binary=\"target/${{ matrix.target }}/release/opencode-pty\"\nrequired=\"$(readelf --version-info \"$binary\" | grep -oE 'GLIBC_[0-9]+(\\.[0-9]+)+' | sed 's/GLIBC_//' | sort -V | tail -n 1)\"\necho \"Highest required glibc version: $required\"\ntest \"$(printf '%s\\n' \"$required\" \"$GNU_GLIBC_VERSION\" | sort -V | tail -n 1)\" = \"$GNU_GLIBC_VERSION\"\n"
+            },
+            {
+              "name": "Smoke test",
+              "run": "version=\"$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == \"opencode-pty\") | .version')\"\nbinary=\"target/${{ matrix.target }}/release/opencode-pty\"\noutput=\"$(\"$binary\" --version)\"\ntest \"$output\" = \"opencode-pty $version (protocol $PROTOCOL_VERSION)\"\nruntime=\"$RUNNER_TEMP/opencode-pty-release-smoke\"\nrm -rf \"$runtime\"\nprintf 'new /bin/sh -c \"printf release-smoke; sleep 1\"\\nwait 250\\nquit\\n' \\\n  | \"$binary\" play --runtime-dir \"$runtime\" --name smoke > \"$RUNNER_TEMP/opencode-pty-release-smoke.log\"\ngrep -q 'release-smoke' \"$RUNNER_TEMP/opencode-pty-release-smoke.log\"\ngrep -q 'checkpoint' \"$RUNNER_TEMP/opencode-pty-release-smoke.log\"\ntest ! -e \"$runtime/smoke\"\n"
+            },
+            {
+              "name": "Package",
+              "run": "version=\"$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == \"opencode-pty\") | .version')\"\nname=\"opencode-pty-${version}-${{ matrix.target }}\"\nmkdir -p \"dist/$name\"\ncp \"target/${{ matrix.target }}/release/opencode-pty\" \"dist/$name/\"\ncp LICENSE README.md \"dist/$name/\"\ntar -C dist -czf \"dist/$name.tar.gz\" \"$name\"\n"
+            },
+            {
+              "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+            }
+          ]
+        },
+        {
+          "id": "build-windows",
+          "needs": "checks",
+          "runs-on": "${{ matrix.runner }}",
+          "strategy": {
+            "fail-fast": "false",
+            "matrix": {
+              "include": [
+                {
+                  "runner": "windows-2025",
+                  "target": "x86_64-pc-windows-msvc",
+                  "arch": "x64"
+                },
+                {
+                  "runner": "windows-11-arm",
+                  "target": "aarch64-pc-windows-msvc",
+                  "arch": "arm64"
+                }
+              ]
+            }
+          },
+          "steps": [
+            {
+              "uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683"
+            },
+            {
+              "name": "Enable long dependency paths",
+              "run": "git config --global core.longpaths true"
+            },
+            {
+              "if": "matrix.arch == 'x64'",
+              "uses": "mlugg/setup-zig@8d6198c65fb0feaa111df26e6b467fea8345e46f"
+            },
+            {
+              "name": "Install x64 Zig for ARM64 cross-compilation",
+              "if": "matrix.arch == 'arm64'",
+              "run": "$archive = Join-Path $env:RUNNER_TEMP 'zig-x64.zip'\nInvoke-WebRequest 'https://ziglang.org/download/0.16.0/zig-x86_64-windows-0.16.0.zip' -OutFile $archive\nif ((Get-FileHash $archive -Algorithm SHA256).Hash -ne '68659eb5f1e4eb1437a722f1dd889c5a322c9954607f5edcf337bc3684a75a7e') { throw 'Zig archive checksum mismatch' }\nExpand-Archive $archive -DestinationPath $env:RUNNER_TEMP\nJoin-Path $env:RUNNER_TEMP 'zig-x86_64-windows-0.16.0' >> $env:GITHUB_PATH\n"
+            },
+            {
+              "name": "Fix Zig 0.16 ARM64 function-pointer alignment",
+              "if": "matrix.arch == 'arm64'",
+              "run": "$file = Join-Path $env:RUNNER_TEMP 'zig-x86_64-windows-0.16.0/lib/std/debug/SelfInfo/Windows.zig'\n$source = [System.IO.File]::ReadAllText($file)\n$old = '@ptrCast(try si.loadNtdllProc(@tagName(proc)))'\nif (!$source.Contains($old)) { throw 'Zig alignment workaround no longer matches; re-evaluate it' }\n[System.IO.File]::WriteAllText($file, $source.Replace($old, '@ptrCast(@alignCast(try si.loadNtdllProc(@tagName(proc))))'))\n"
+            },
+            {
+              "name": "Pin MSVC 14.51 for Zig's Clang 21",
+              "run": "$installer = \"${env:ProgramFiles(x86)}\\Microsoft Visual Studio\\Installer\"\n$vs = & \"$installer\\vswhere.exe\" -latest -products * -property installationPath\n$tools = \"$vs\\VC\\Tools\\MSVC\"\n$arch = '${{ matrix.arch }}'\n$hasRuntimes = {\n  (Test-Path \"$($_.FullName)\\lib\\x64\\vcruntime.lib\") -and\n    (Test-Path \"$($_.FullName)\\lib\\$arch\\vcruntime.lib\")\n}\nif (!(Get-ChildItem $tools -Directory -Filter '14.51.*' | Where-Object $hasRuntimes)) {\n  $components = '--add Microsoft.VisualStudio.Component.VC.14.51.x86.x64'\n  if ($arch -eq 'arm64') { $components += ' --add Microsoft.VisualStudio.Component.VC.14.51.ARM64' }\n  $setup = Start-Process \"$installer\\setup.exe\" -ArgumentList \"modify --installPath `\"$vs`\" $components --quiet --norestart\" -Wait -PassThru\n  if ($setup.ExitCode -notin 0, 3010) { throw \"VS installer exited with $($setup.ExitCode)\" }\n  Write-Output \"MSVC 14.51 installer exited with $($setup.ExitCode) for $arch\"\n}\n$toolset = Get-ChildItem $tools -Directory -Filter '14.51.*' |\n  Where-Object $hasRuntimes |\n  Sort-Object { [version]$_.Name } -Descending | Select-Object -First 1\nif (!$toolset) { throw \"Missing MSVC 14.51 for $arch\" }\n# Zig reads this file for both host and target tools on the disposable runner.\nSet-Content \"$vs\\VC\\Auxiliary\\Build\\Microsoft.VCToolsVersion.default.txt\" $toolset.Name -Encoding ascii\n$libc = zig libc\n$libc\nif ($LASTEXITCODE -ne 0 -or $libc -inotcontains \"sys_include_dir=$($toolset.FullName)\\include\") { throw 'Zig selected unexpected MSVC headers' }\n"
+            },
+            {
+              "name": "Install Rust toolchain and target",
+              "run": "rustup toolchain install $env:RUSTUP_TOOLCHAIN --force-non-host --profile minimal --target $env:CARGO_BUILD_TARGET"
+            },
+            {
+              "uses": "./.github/actions/prefetch-ghostty"
+            },
+            {
+              "name": "Build",
+              "run": "cargo build --locked --release"
+            },
+            {
+              "name": "Smoke test",
+              "run": "$metadata = cargo metadata --locked --no-deps --format-version 1 | ConvertFrom-Json\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\n$version = ($metadata.packages | Where-Object name -eq 'opencode-pty').version\n$binary = \"target/$env:CARGO_BUILD_TARGET/release/opencode-pty.exe\"\n$output = & $binary --version\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\nif ($output -ne \"opencode-pty $version (protocol $env:PROTOCOL_VERSION)\") { throw \"Unexpected version output: $output\" }\n# Start a real daemon over a named pipe; it stops when nobody claims it.\n$runtime = Join-Path $env:RUNNER_TEMP 'opencode-pty-release-smoke'\n$daemon = Start-Process $binary -ArgumentList @('daemon', '--runtime-dir', $runtime, '--name', 'smoke') -PassThru -NoNewWindow\n$deadline = (Get-Date).AddSeconds(10)\nwhile (!(Test-Path (Join-Path $runtime 'smoke/service.json'))) {\n  if ($daemon.HasExited -or (Get-Date) -gt $deadline) { throw 'daemon did not register' }\n  Start-Sleep -Milliseconds 50\n}\nif (!$daemon.WaitForExit(15000)) { $daemon.Kill(); throw 'unclaimed daemon did not stop' }\nif (Test-Path (Join-Path $runtime 'smoke')) { throw 'runtime directory was not removed' }\n"
+            },
+            {
+              "name": "Package",
+              "run": "$metadata = cargo metadata --locked --no-deps --format-version 1 | ConvertFrom-Json\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\n$version = ($metadata.packages | Where-Object name -eq 'opencode-pty').version\n$name = \"opencode-pty-$version-$env:CARGO_BUILD_TARGET\"\nNew-Item -ItemType Directory -Force \"dist/$name\" | Out-Null\nCopy-Item \"target/$env:CARGO_BUILD_TARGET/release/opencode-pty.exe\" \"dist/$name/\"\nCopy-Item LICENSE, README.md \"dist/$name/\"\ntar -C dist -czf \"dist/$name.tar.gz\" $name\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\n"
+            },
+            {
+              "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+            }
+          ]
+        },
+        {
+          "id": "package",
+          "needs": [
+            "checks",
+            "build",
+            "build-windows"
+          ],
+          "runs-on": "ubuntu-22.04",
+          "steps": [
+            {
+              "uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683"
+            },
+            {
+              "uses": "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
+            },
+            {
+              "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093"
+            },
+            {
+              "name": "Create checksums and manifest",
+              "run": "version=\"$(node -p 'require(\"../npm/package.json\").version')\"\nsha256sum opencode-pty-*.tar.gz > SHA256SUMS\nartifacts='[]'\nwhile read -r sha256 archive; do\n  target=\"${archive#opencode-pty-${version}-}\"\n  target=\"${target%.tar.gz}\"\n  artifacts=\"$(jq --arg target \"$target\" --arg archive \"$archive\" --arg sha256 \"$sha256\" '. + [{target: $target, archive: $archive, sha256: $sha256}]' <<<\"$artifacts\")\"\ndone < SHA256SUMS\njq -n \\\n  --arg version \"$version\" \\\n  --argjson protocol \"$PROTOCOL_VERSION\" \\\n  --argjson artifacts \"$artifacts\" \\\n  '{schema: 1, version: $version, protocol: $protocol, artifacts: $artifacts}' \\\n  > release-manifest.json\nsha256sum release-manifest.json >> SHA256SUMS\n",
+              "working-directory": "packages/process-daemon/dist"
+            },
+            {
+              "name": "Prepare npm packages",
+              "run": "node script/npm-packages.mjs dist"
+            },
+            {
+              "name": "Validate npm packages",
+              "run": "for package in dist/npm/*; do\n  npm pack --dry-run \"$package\" >/dev/null\ndone\ntemporary=\"$(mktemp -d)\"\nnpm pack --pack-destination \"$temporary\" dist/npm/opencode-pty-linux-x64-gnu dist/npm/opencode-pty >/dev/null\nnpm install --prefix \"$temporary\" --ignore-scripts --no-package-lock --no-audit --no-fund \"$temporary\"/*.tgz\ntest \"$(\"$temporary/node_modules/.bin/opencode-pty\" --version)\" = \"opencode-pty $(node -p 'require(\"./npm/package.json\").version') (protocol $PROTOCOL_VERSION)\"\n"
+            },
+            {
+              "name": "Stage release files",
+              "run": "mkdir -p \"$RUNNER_TEMP/bundle/github\" \"$RUNNER_TEMP/bundle/npm\"\ncp dist/*.tar.gz dist/release-manifest.json dist/SHA256SUMS \"$RUNNER_TEMP/bundle/github/\"\nfor package in dist/npm/*; do\n  npm pack --ignore-scripts --pack-destination \"$RUNNER_TEMP/bundle/npm\" \"$(realpath \"$package\")\"\ndone\n# The upload action owns the outer SHA256SUMS; include the release checksums in it.\nmv \"$RUNNER_TEMP/bundle/github/SHA256SUMS\" \"$RUNNER_TEMP/bundle/github/checksums.txt\"\n"
+            },
+            {
+              "uses": "./.github/release/upload"
+            }
+          ]
+        },
+        {
+          "id": "release",
+          "needs": [
+            "checks",
+            "package"
+          ],
+          "if": "github.event_name == 'push' && startsWith(github.ref, 'refs/tags/process-daemon-v')",
+          "runs-on": "ubuntu-24.04",
+          "steps": [
+            {
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "uses": "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
+            },
+            {
+              "uses": "./.github/release/download"
+            },
+            {
+              "uses": "actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6"
+            },
+            {
+              "name": "Publish release",
+              "run": "cd \"$RUNNER_TEMP/in/process-daemon-bundle/github\"\nmv checksums.txt SHA256SUMS\nversion=\"${GITHUB_REF_NAME#process-daemon-v}\"\ngh release view \"$GITHUB_REF_NAME\" --repo \"$GITHUB_REPOSITORY\" >/dev/null 2>&1 ||\n  gh release create \"$GITHUB_REF_NAME\" --repo \"$GITHUB_REPOSITORY\" --draft --verify-tag --latest=false \\\n    --title \"process-daemon v$version\" \\\n    --notes \"opencode-pty $version (protocol $PROTOCOL_VERSION) from packages/process-daemon, published to npm as @opencode/pty@$version.\"\ngh release upload \"$GITHUB_REF_NAME\" ./*.tar.gz SHA256SUMS release-manifest.json --clobber --repo \"$GITHUB_REPOSITORY\"\ngh release edit \"$GITHUB_REF_NAME\" --draft=false --latest=false --repo \"$GITHUB_REPOSITORY\"\n"
+            },
+            {
+              "name": "Publish npm packages",
+              "run": "bash .github/release/publish-process-daemon.sh \"$RUNNER_TEMP/in/process-daemon-bundle/npm\""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "release",
+      "name": "release",
+      "source": ".github/workflows/release.yml",
+      "triggers": {
+        "push": {
+          "branches": [
+            "beta"
+          ]
+        },
+        "schedule": [
+          {
+            "cron": "17 */6 * * *"
+          }
+        ],
+        "workflow_dispatch": {
+          "inputs": {
+            "bump": {
+              "description": "Bump major, minor, or patch",
+              "required": "false",
+              "type": "choice",
+              "options": [
+                "major",
+                "minor",
+                "patch"
+              ]
+            },
+            "version": {
+              "description": "Override version (optional)",
+              "required": "false",
+              "type": "string"
+            },
+            "release_notes": {
+              "description": "Reviewed V2 release notes for CHANGELOG.md and the GitHub release (required with bump or version)",
+              "required": "false",
+              "type": "string"
+            }
+          }
+        }
+      },
+      "jobs": [
+        {
+          "id": "plan",
+          "if": "github.repository == 'anomalyco/opencode'",
+          "runs-on": "ubuntu-24.04",
+          "steps": [
+            {
+              "name": "Check out release scripts",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Plan",
+              "run": "bash .github/release/plan-release.sh"
+            }
+          ]
+        },
+        {
+          "id": "verify",
+          "needs": "plan",
+          "if": "needs.plan.outputs.channel == 'latest'",
+          "uses": "./.github/workflows/check-test.yml",
+          "steps": []
+        },
+        {
+          "id": "tag",
+          "needs": "plan",
+          "runs-on": "ubuntu-24.04",
+          "steps": [
+            {
+              "name": "Configure AWS credentials",
+              "if": "needs.plan.outputs.channel == 'latest' && needs.plan.outputs.dry_run != 'true'",
+              "uses": "aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd"
+            },
+            {
+              "name": "Check out",
+              "if": "needs.plan.outputs.channel == 'latest'",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Tag",
+              "if": "needs.plan.outputs.channel == 'latest'",
+              "run": "bash .github/release/with-secrets.sh RELEASE_TAG_KEY=opencode/release/RELEASE_TAG_KEY -- bash .github/release/tag-release.sh"
+            }
+          ]
+        },
+        {
+          "id": "models-catalog",
+          "needs": [
+            "plan",
+            "tag"
+          ],
+          "runs-on": "blacksmith-4vcpu-ubuntu-2404",
+          "steps": [
+            {
+              "name": "Check out",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Set up Bun",
+              "uses": "./.github/actions/setup-bun"
+            },
+            {
+              "name": "Fetch",
+              "run": "bun packages/core/script/update-models-snapshot.ts .cache/models-catalog/api.json"
+            },
+            {
+              "name": "Upload",
+              "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+            }
+          ]
+        },
+        {
+          "id": "build-cli",
+          "needs": [
+            "plan",
+            "tag",
+            "models-catalog"
+          ],
+          "runs-on": "blacksmith-4vcpu-ubuntu-2404",
+          "steps": [
+            {
+              "name": "Check out",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Set up Bun",
+              "uses": "./.github/actions/setup-bun"
+            },
+            {
+              "name": "Download models catalog",
+              "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093"
+            },
+            {
+              "name": "Build",
+              "run": "bun run build && rm -rf dist/.bun",
+              "working-directory": "packages/cli"
+            },
+            {
+              "name": "Verify bundled models catalog",
+              "run": "bun packages/cli/script/catalog-smoke.ts packages/cli/dist/cli-linux-x64/bin/opencode"
+            },
+            {
+              "name": "Upload",
+              "uses": "./.github/release/upload"
+            }
+          ]
+        },
+        {
+          "id": "build-node",
+          "needs": [
+            "plan",
+            "tag",
+            "models-catalog"
+          ],
+          "if": "needs.plan.outputs.node == 'true'",
+          "runs-on": "${{ matrix.host }}",
+          "strategy": {
+            "fail-fast": "false",
+            "matrix": {
+              "include": [
+                {
+                  "target": "linux-arm64",
+                  "host": "blacksmith-4vcpu-ubuntu-2404-arm"
+                },
+                {
+                  "target": "linux-x64",
+                  "host": "blacksmith-4vcpu-ubuntu-2404"
+                },
+                {
+                  "target": "darwin-arm64",
+                  "host": "blacksmith-6vcpu-macos-26"
+                },
+                {
+                  "target": "windows-arm64",
+                  "host": "blacksmith-4vcpu-windows-2025"
+                },
+                {
+                  "target": "windows-x64",
+                  "host": "blacksmith-4vcpu-windows-2025"
+                }
+              ]
+            }
+          },
+          "steps": [
+            {
+              "name": "Check out",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Set up Bun",
+              "uses": "./.github/actions/setup-bun"
+            },
+            {
+              "name": "Set up Node",
+              "uses": "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
+            },
+            {
+              "name": "Download models catalog",
+              "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093"
+            },
+            {
+              "name": "Build",
+              "run": "bun run build:node",
+              "working-directory": "packages/cli"
+            },
+            {
+              "name": "Test",
+              "if": "matrix.target != 'windows-arm64'",
+              "run": "bun run script/service-smoke.ts --node",
+              "working-directory": "packages/cli"
+            },
+            {
+              "name": "Verify bundled models catalog",
+              "if": "matrix.target != 'windows-arm64'",
+              "run": "bun packages/cli/script/catalog-smoke.ts \"packages/cli/dist/node/cli-node-$OPENCODE_TARGET/bin/opencode2-node$EXE\""
+            },
+            {
+              "name": "Upload",
+              "uses": "./.github/release/upload"
+            }
+          ]
+        },
+        {
+          "id": "build-npm",
+          "needs": [
+            "plan",
+            "tag",
+            "build-cli",
+            "build-node"
+          ],
+          "if": "${{ !cancelled() && !failure() && needs.plan.outputs.cli == 'true' }}",
+          "runs-on": "blacksmith-4vcpu-ubuntu-2404",
+          "steps": [
+            {
+              "name": "Check out",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Set up Bun",
+              "uses": "./.github/actions/setup-bun"
+            },
+            {
+              "name": "Download",
+              "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093"
+            },
+            {
+              "name": "Download Node CLI",
+              "if": "needs.plan.outputs.node == 'true'",
+              "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093"
+            },
+            {
+              "name": "Pack",
+              "run": "rm packages/cli/dist/SHA256SUMS && bun run pack"
+            },
+            {
+              "name": "Upload",
+              "uses": "./.github/release/upload"
+            },
+            {
+              "name": "Upload archives",
+              "uses": "./.github/release/upload"
+            }
+          ]
+        },
+        {
+          "id": "build-docker",
+          "needs": [
+            "plan",
+            "tag",
+            "build-cli"
+          ],
+          "if": "needs.plan.outputs.release == 'true'",
+          "runs-on": "blacksmith-4vcpu-ubuntu-2404",
+          "steps": [
+            {
+              "name": "Check out",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Download",
+              "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093"
+            },
+            {
+              "name": "Set up QEMU",
+              "uses": "docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130"
+            },
+            {
+              "name": "Set up Buildx",
+              "uses": "docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f"
+            },
+            {
+              "name": "Set up Bun",
+              "uses": "./.github/actions/setup-bun"
+            },
+            {
+              "name": "Pack",
+              "run": "bun run pack:docker",
+              "working-directory": "packages/cli"
+            },
+            {
+              "name": "Upload",
+              "uses": "./.github/release/upload"
+            }
+          ]
+        },
+        {
+          "id": "build-desktop",
+          "needs": [
+            "plan",
+            "tag",
+            "build-cli"
+          ],
+          "if": "needs.plan.outputs.desktop == 'true'",
+          "runs-on": "${{ matrix.host }}",
+          "strategy": {
+            "fail-fast": "false",
+            "matrix": {
+              "include": [
+                {
+                  "target": "darwin-x64",
+                  "host": "${{ (needs.plan.outputs.channel == 'dev' || needs.plan.outputs.channel == 'beta') && 'blacksmith-6vcpu-macos-26' || 'macos-26-intel' }}",
+                  "install": "${{ (needs.plan.outputs.channel == 'dev' || needs.plan.outputs.channel == 'beta') && '--os=darwin --cpu=*' || '--os=darwin --cpu=x64' }}"
+                },
+                {
+                  "target": "darwin-arm64",
+                  "host": "blacksmith-6vcpu-macos-26",
+                  "install": "--os=darwin --cpu=arm64"
+                },
+                {
+                  "target": "windows-arm64",
+                  "host": "${{ (needs.plan.outputs.channel == 'dev' || needs.plan.outputs.channel == 'beta') && 'blacksmith-4vcpu-windows-2025' || 'windows-2025' }}",
+                  "install": "--cpu=*"
+                },
+                {
+                  "target": "windows-x64",
+                  "host": "blacksmith-4vcpu-windows-2025"
+                },
+                {
+                  "target": "linux-x64",
+                  "host": "blacksmith-4vcpu-ubuntu-2404"
+                },
+                {
+                  "target": "linux-arm64",
+                  "host": "blacksmith-4vcpu-ubuntu-2404-arm"
+                }
+              ]
+            }
+          },
+          "steps": [
+            {
+              "name": "Check out",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Download",
+              "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093"
+            },
+            {
+              "name": "Set up Bun",
+              "uses": "./.github/actions/setup-bun"
+            },
+            {
+              "name": "Set up rpm",
+              "if": "runner.os == 'Linux'",
+              "run": "sudo apt-get update && sudo apt-get install -y --no-install-recommends rpm"
+            },
+            {
+              "name": "Preview packaging settings",
+              "if": "(needs.plan.outputs.channel == 'dev' || needs.plan.outputs.channel == 'beta') && runner.os == 'Linux'",
+              "run": "echo \"XZ_DEFAULTS=-T0\" >> \"$GITHUB_ENV\""
+            },
+            {
+              "name": "Build",
+              "run": "bun run build",
+              "working-directory": "packages/desktop"
+            },
+            {
+              "name": "Pack",
+              "run": "bun run pack",
+              "working-directory": "packages/desktop"
+            },
+            {
+              "name": "Upload",
+              "uses": "./.github/release/upload"
+            }
+          ]
+        },
+        {
+          "id": "build-desktop-windows-installer",
+          "needs": [
+            "plan",
+            "tag",
+            "sign-windows"
+          ],
+          "if": "${{ !cancelled() && !failure() && needs.plan.outputs.desktop == 'true' }}",
+          "runs-on": "${{ matrix.host }}",
+          "strategy": {
+            "fail-fast": "false",
+            "matrix": {
+              "include": [
+                {
+                  "target": "windows-arm64",
+                  "host": "${{ (needs.plan.outputs.channel == 'dev' || needs.plan.outputs.channel == 'beta') && 'blacksmith-4vcpu-windows-2025' || 'windows-2025' }}",
+                  "install": "--cpu=*"
+                },
+                {
+                  "target": "windows-x64",
+                  "host": "blacksmith-4vcpu-windows-2025"
+                }
+              ]
+            }
+          },
+          "steps": [
+            {
+              "name": "Check out",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Set up Bun",
+              "uses": "./.github/actions/setup-bun"
+            },
+            {
+              "name": "Download",
+              "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093"
+            },
+            {
+              "name": "Pack",
+              "run": "bun run pack",
+              "working-directory": "packages/desktop"
+            },
+            {
+              "name": "Upload",
+              "uses": "./.github/release/upload"
+            }
+          ]
+        },
+        {
+          "id": "sign-macos",
+          "needs": [
+            "plan",
+            "build-npm",
+            "build-desktop"
+          ],
+          "if": "${{ !cancelled() && !failure() && (needs.plan.outputs.cli == 'true' || needs.plan.outputs.desktop == 'true') }}",
+          "runs-on": "macos-26",
+          "steps": [
+            {
+              "name": "Check out release scripts",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Download",
+              "uses": "./.github/release/download"
+            },
+            {
+              "name": "Configure AWS credentials",
+              "if": "needs.plan.outputs.dry_run != 'true'",
+              "uses": "aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd"
+            },
+            {
+              "name": "Import certificate",
+              "if": "needs.plan.outputs.dry_run != 'true'",
+              "run": "bash .github/release/with-secrets.sh APPLE_SIGNING_CERTIFICATE=shared/APPLE_SIGNING_CERTIFICATE -- bash .github/release/import-certificate.sh"
+            },
+            {
+              "name": "Sign CLI",
+              "if": "needs.plan.outputs.cli == 'true'",
+              "run": "bash .github/release/sign-cli-macos.sh \"$RUNNER_TEMP/in/build-npm\" \"$RUNNER_TEMP/out\""
+            },
+            {
+              "name": "Sign desktop",
+              "if": "needs.plan.outputs.desktop == 'true'",
+              "run": "bash .github/release/with-secrets.sh APPLE_NOTARY_KEY=shared/APPLE_NOTARY_KEY -- bash .github/release/sign-desktop-macos.sh \"$RUNNER_TEMP/out\" \\\n  \"$RUNNER_TEMP\"/in/build-desktop-darwin-*/opencode-desktop-mac-*.app.tar\n"
+            },
+            {
+              "name": "Upload",
+              "uses": "./.github/release/upload"
+            },
+            {
+              "name": "Delete keychain",
+              "if": "always() && needs.plan.outputs.dry_run != 'true'",
+              "run": "rm -f \"$RUNNER_TEMP/cert.p12\"\nsecurity delete-keychain build.keychain || true\n"
+            }
+          ]
+        },
+        {
+          "id": "sign-windows",
+          "needs": [
+            "plan",
+            "build-npm",
+            "build-desktop"
+          ],
+          "if": "${{ !cancelled() && !failure() && (needs.plan.outputs.cli == 'true' || needs.plan.outputs.desktop == 'true') }}",
+          "runs-on": "windows-2025",
+          "steps": [
+            {
+              "name": "Check out release scripts",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Download",
+              "uses": "./.github/release/download"
+            },
+            {
+              "name": "Unpack",
+              "run": "bash .github/release/unpack-windows.sh \"$RUNNER_TEMP/in\" \"$RUNNER_TEMP/work\""
+            },
+            {
+              "name": "Log in to Azure",
+              "if": "needs.plan.outputs.dry_run != 'true'",
+              "uses": "azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5"
+            },
+            {
+              "name": "Sign",
+              "if": "needs.plan.outputs.dry_run != 'true'",
+              "uses": "azure/artifact-signing-action@b443cf8ea4124818d2ea9f043cba29fc3ec47b16"
+            },
+            {
+              "name": "Repack",
+              "run": "bash .github/release/repack-windows.sh \"$RUNNER_TEMP/work\" \"$RUNNER_TEMP/out\""
+            },
+            {
+              "name": "Upload",
+              "if": "needs.plan.outputs.cli == 'true'",
+              "uses": "./.github/release/upload"
+            },
+            {
+              "name": "Upload arm64 app",
+              "if": "needs.plan.outputs.desktop == 'true'",
+              "uses": "./.github/release/upload"
+            },
+            {
+              "name": "Upload x64 app",
+              "if": "needs.plan.outputs.desktop == 'true'",
+              "uses": "./.github/release/upload"
+            }
+          ]
+        },
+        {
+          "id": "sign-desktop-windows-installer",
+          "needs": [
+            "plan",
+            "build-desktop-windows-installer"
+          ],
+          "if": "${{ !cancelled() && !failure() && needs.plan.outputs.desktop == 'true' }}",
+          "runs-on": "windows-2025",
+          "steps": [
+            {
+              "name": "Check out release scripts",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Download",
+              "uses": "./.github/release/download"
+            },
+            {
+              "name": "Unpack",
+              "run": "mkdir -p \"$RUNNER_TEMP/work\" && cp \"$RUNNER_TEMP\"/in/build-desktop-windows-installer-*/*.exe \"$RUNNER_TEMP/work/\""
+            },
+            {
+              "name": "Log in to Azure",
+              "if": "needs.plan.outputs.dry_run != 'true'",
+              "uses": "azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5"
+            },
+            {
+              "name": "Sign",
+              "if": "needs.plan.outputs.dry_run != 'true'",
+              "uses": "azure/artifact-signing-action@b443cf8ea4124818d2ea9f043cba29fc3ec47b16"
+            },
+            {
+              "name": "Repack",
+              "run": "bash .github/release/repack-windows.sh \"$RUNNER_TEMP/work\" \"$RUNNER_TEMP/out\""
+            },
+            {
+              "name": "Upload",
+              "uses": "./.github/release/upload"
+            }
+          ]
+        },
+        {
+          "id": "publish-attestations",
+          "needs": [
+            "plan",
+            "build-npm",
+            "verify"
+          ],
+          "if": "${{ !cancelled() && !failure() && needs.plan.outputs.cli == 'true' && needs.plan.outputs.dry_run != 'true' }}",
+          "runs-on": "ubuntu-24.04",
+          "steps": [
+            {
+              "name": "Check out release scripts",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Download",
+              "uses": "./.github/release/download"
+            },
+            {
+              "name": "Sign",
+              "uses": "actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8"
+            }
+          ]
+        },
+        {
+          "id": "publish-npm",
+          "needs": [
+            "plan",
+            "sign-macos",
+            "sign-windows",
+            "publish-attestations",
+            "verify"
+          ],
+          "if": "${{ !cancelled() && !failure() && needs.plan.outputs.cli == 'true' }}",
+          "runs-on": "ubuntu-24.04",
+          "steps": [
+            {
+              "name": "Check out release scripts",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Set up Node",
+              "uses": "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
+            },
+            {
+              "name": "Download",
+              "uses": "./.github/release/download"
+            },
+            {
+              "name": "Publish",
+              "run": "bash .github/release/publish-npm.sh \"$RUNNER_TEMP/in/build-npm\" \"$RUNNER_TEMP/in/sign-macos\" \"$RUNNER_TEMP/in/sign-windows\""
+            }
+          ]
+        },
+        {
+          "id": "publish-cli",
+          "needs": [
+            "plan",
+            "sign-macos",
+            "sign-windows",
+            "publish-npm",
+            "verify"
+          ],
+          "if": "${{ !cancelled() && !failure() && needs.plan.outputs.cli == 'true' }}",
+          "runs-on": "ubuntu-24.04",
+          "steps": [
+            {
+              "name": "Check out release scripts",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Download",
+              "uses": "./.github/release/download"
+            },
+            {
+              "name": "Configure AWS credentials",
+              "if": "needs.plan.outputs.dry_run != 'true'",
+              "uses": "aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd"
+            },
+            {
+              "name": "Cloudflare token",
+              "if": "needs.plan.outputs.dry_run != 'true'",
+              "run": "bash .github/release/cloudflare-token.sh"
+            },
+            {
+              "name": "Publish",
+              "run": "bash .github/release/publish-cli.sh \"$RUNNER_TEMP/in/build-archives\" \"$RUNNER_TEMP/in/sign-macos\" \"$RUNNER_TEMP/in/sign-windows\""
+            }
+          ]
+        },
+        {
+          "id": "publish-desktop",
+          "needs": [
+            "plan",
+            "sign-macos",
+            "sign-desktop-windows-installer",
+            "verify"
+          ],
+          "if": "${{ !cancelled() && !failure() && needs.plan.outputs.desktop == 'true' }}",
+          "runs-on": "ubuntu-24.04",
+          "steps": [
+            {
+              "name": "Check out release scripts",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Download",
+              "uses": "./.github/release/download"
+            },
+            {
+              "name": "Configure AWS credentials",
+              "if": "needs.plan.outputs.dry_run != 'true'",
+              "uses": "aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd"
+            },
+            {
+              "name": "Cloudflare token",
+              "if": "needs.plan.outputs.dry_run != 'true'",
+              "run": "bash .github/release/cloudflare-token.sh"
+            },
+            {
+              "name": "Publish",
+              "run": "bash .github/release/publish-desktop.sh \"$RUNNER_TEMP/in/sign-macos\" \"$RUNNER_TEMP/in/sign-desktop-windows-installer\" \\\n  \"$RUNNER_TEMP/in/build-desktop-linux-x64\" \"$RUNNER_TEMP/in/build-desktop-linux-arm64\"\n"
+            }
+          ]
+        },
+        {
+          "id": "publish-docker",
+          "needs": [
+            "plan",
+            "build-docker",
+            "verify"
+          ],
+          "if": "${{ !cancelled() && !failure() && needs.plan.outputs.release == 'true' }}",
+          "runs-on": "ubuntu-24.04",
+          "steps": [
+            {
+              "name": "Check out release scripts",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Download",
+              "uses": "./.github/release/download"
+            },
+            {
+              "name": "Publish",
+              "run": "bash .github/release/publish-docker.sh \"$RUNNER_TEMP/in/build-docker\""
+            }
+          ]
+        },
+        {
+          "id": "publish-homebrew",
+          "needs": [
+            "plan",
+            "sign-macos",
+            "sign-windows",
+            "publish-cli",
+            "verify"
+          ],
+          "if": "${{ !cancelled() && !failure() && needs.plan.outputs.release == 'true' }}",
+          "runs-on": "ubuntu-24.04",
+          "steps": [
+            {
+              "name": "Check out release scripts",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Download",
+              "uses": "./.github/release/download"
+            },
+            {
+              "name": "Configure AWS credentials",
+              "if": "needs.plan.outputs.dry_run != 'true'",
+              "uses": "aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd"
+            },
+            {
+              "name": "Publish",
+              "run": "bash .github/release/with-secrets.sh HOMEBREW_TAP_DEPLOY_KEY=shared/HOMEBREW_TAP_DEPLOY_KEY -- bash .github/release/publish-homebrew.sh \"$RUNNER_TEMP/in/sign-macos\" \"$RUNNER_TEMP/in/build-archives\""
+            }
+          ]
+        },
+        {
+          "id": "publish-aur",
+          "needs": [
+            "plan",
+            "sign-macos",
+            "sign-windows",
+            "publish-npm",
+            "verify"
+          ],
+          "if": "${{ !cancelled() && !failure() && needs.plan.outputs.release == 'true' }}",
+          "runs-on": "ubuntu-24.04",
+          "steps": [
+            {
+              "name": "Check out release scripts",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Download",
+              "uses": "./.github/release/download"
+            },
+            {
+              "name": "Configure AWS credentials",
+              "if": "needs.plan.outputs.dry_run != 'true'",
+              "uses": "aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd"
+            },
+            {
+              "name": "Publish",
+              "run": "bash .github/release/with-secrets.sh AUR_KEY=shared/AUR_SSH_KEY -- bash .github/release/publish-aur.sh \"$RUNNER_TEMP/in/build-npm\""
+            }
+          ]
+        },
+        {
+          "id": "publish-winget",
+          "needs": [
+            "plan",
+            "sign-windows",
+            "sign-desktop-windows-installer",
+            "verify"
+          ],
+          "if": "${{ !cancelled() && !failure() && needs.plan.outputs.release == 'true' }}",
+          "runs-on": "ubuntu-24.04",
+          "steps": [
+            {
+              "name": "Check out release scripts",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Download",
+              "uses": "./.github/release/download"
+            },
+            {
+              "name": "Render",
+              "run": "bash .github/release/render-winget.sh \"$RUNNER_TEMP/in/sign-windows\" \"$RUNNER_TEMP/in/sign-desktop-windows-installer\" \"$RUNNER_TEMP/out\""
+            },
+            {
+              "name": "Upload",
+              "uses": "./.github/release/upload"
+            }
+          ]
+        },
+        {
+          "id": "publish-github-release",
+          "needs": [
+            "plan",
+            "sign-macos",
+            "sign-windows",
+            "sign-desktop-windows-installer",
+            "publish-cli",
+            "publish-desktop",
+            "verify"
+          ],
+          "if": "${{ !cancelled() && !failure() && needs.plan.outputs.release == 'true' }}",
+          "runs-on": "ubuntu-24.04",
+          "steps": [
+            {
+              "name": "Check out release scripts",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Download",
+              "uses": "./.github/release/download"
+            },
+            {
+              "name": "Publish",
+              "run": "bash .github/release/publish-github-release.sh \"$RUNNER_TEMP\"/in/*"
+            }
+          ]
+        },
+        {
+          "id": "publish-discord",
+          "needs": [
+            "plan",
+            "publish-github-release",
+            "verify"
+          ],
+          "if": "${{ !cancelled() && !failure() && needs.plan.outputs.release == 'true' }}",
+          "runs-on": "ubuntu-24.04",
+          "steps": [
+            {
+              "name": "Check out release scripts",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Configure AWS credentials",
+              "if": "needs.plan.outputs.dry_run != 'true'",
+              "uses": "aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd"
+            },
+            {
+              "name": "Publish",
+              "run": "bash .github/release/with-secrets.sh DISCORD_WEBHOOK=opencode/release/DISCORD_WEBHOOK -- bash .github/release/publish-discord.sh"
+            }
+          ]
+        },
+        {
+          "id": "publish-version-pr",
+          "needs": [
+            "plan",
+            "tag",
+            "publish-npm",
+            "publish-cli",
+            "publish-desktop",
+            "publish-github-release",
+            "verify"
+          ],
+          "if": "${{ !cancelled() && !failure() && needs.plan.outputs.channel == 'latest' }}",
+          "runs-on": "ubuntu-24.04",
+          "steps": [
+            {
+              "name": "Check out release scripts",
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "name": "Publish",
+              "run": "bash .github/release/publish-version-pr.sh \"$SHA\""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "triage-close-issues",
+      "name": "triage-close-issues",
+      "source": ".github/workflows/triage-close-issues.yml",
+      "triggers": {
+        "schedule": [
+          {
+            "cron": "0 2 * * *"
+          }
+        ],
+        "workflow_dispatch": ""
+      },
+      "jobs": [
+        {
+          "id": "close",
+          "runs-on": "ubuntu-latest",
+          "steps": [
+            {
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "uses": "oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6"
+            },
+            {
+              "name": "Close stale issues",
+              "run": "bun script/github/close-issues.ts"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "triage-close-prs",
+      "name": "triage-close-prs",
+      "source": ".github/workflows/triage-close-prs.yml",
+      "triggers": {
+        "schedule": [
+          {
+            "cron": "0 22 * * *"
+          }
+        ],
+        "workflow_dispatch": {
+          "inputs": {
+            "dry-run": {
+              "description": "Log matching PRs without closing them",
+              "type": "boolean",
+              "default": "true"
+            },
+            "max-close": {
+              "description": "Maximum matching PRs to close",
+              "type": "string",
+              "required": "false",
+              "default": "50"
+            }
+          }
+        }
+      },
+      "jobs": [
+        {
+          "id": "close",
+          "runs-on": "ubuntu-latest",
+          "steps": [
+            {
+              "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+            },
+            {
+              "uses": "oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6"
+            },
+            {
+              "name": "Close old PRs without enough positive reactions",
+              "run": "max_close=\"${{ inputs['max-close'] }}\"\nif [ -z \"$max_close\" ]; then\n  max_close=\"50\"\nfi\n\nargs=(\"--threshold\" \"2\" \"--age-months\" \"1\" \"--sleep-ms\" \"20000\" \"--max-close\" \"$max_close\")\n\nif [ \"${{ github.event_name }}\" = \"schedule\" ]; then\n  args+=(\"--execute\")\nelif [ \"${{ inputs['dry-run'] }}\" = \"false\" ]; then\n  args+=(\"--execute\")\nfi\n\nbun script/github/close-prs.ts \"${args[@]}\"\n"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "triage-compliance-close",
+      "name": "triage-compliance-close",
+      "source": ".github/workflows/triage-compliance-close.yml",
+      "triggers": {
+        "schedule": [
+          {
+            "cron": "*/30 * * * *"
+          }
+        ],
+        "workflow_dispatch": ""
+      },
+      "jobs": [
+        {
+          "id": "close-non-compliant",
+          "runs-on": "ubuntu-latest",
+          "steps": [
+            {
+              "name": "Close non-compliant issues and PRs after 72 hours",
+              "uses": "actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "triage-contributor",
+      "name": "triage-contributor",
+      "source": ".github/workflows/triage-contributor.yml",
+      "triggers": {
+        "pull_request_target": {
+          "types": [
+            "opened"
+          ]
+        }
+      },
+      "jobs": [
+        {
+          "id": "add-contributor-label",
+          "runs-on": "ubuntu-latest",
+          "steps": [
+            {
+              "name": "Add Contributor Label",
+              "uses": "actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "triage-pr-standards",
+      "name": "triage-pr-standards",
+      "source": ".github/workflows/triage-pr-standards.yml",
+      "triggers": {
+        "pull_request_target": {
+          "types": [
+            "opened",
+            "edited",
+            "synchronize"
+          ]
+        }
+      },
+      "jobs": [
+        {
+          "id": "check-standards",
+          "runs-on": "ubuntu-latest",
+          "steps": [
+            {
+              "name": "Check PR standards",
+              "uses": "actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b"
+            }
+          ]
+        },
+        {
+          "id": "check-compliance",
+          "runs-on": "ubuntu-latest",
+          "steps": [
+            {
+              "name": "Check PR template compliance",
+              "uses": "actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

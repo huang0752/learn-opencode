@@ -1,0 +1,11 @@
+flowchart LR
+    P["发布事件"] --> D{"durable 定义？"}
+    D -- "否" --> L["直接投影与实时通知"]
+    D -- "是" --> T
+    subgraph T["按聚合顺序执行 SQLite 事务"]
+      S["确定序号"] --> R["执行版本对应的投影器"]
+      R --> C["执行本地 commit hook，更新 event_sequence"]
+      C --> E["persist 开启时写入 event 载荷"]
+    end
+    T -- "提交成功" --> N["事务后通知监听器与订阅流"]
+    T -- "任一步失败" --> X["回滚事务"]

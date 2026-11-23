@@ -1,0 +1,272 @@
+{
+  "commit": "ee5fe34e136488a1839ac73bcca8321c51a31b75",
+  "bun": "1.4.4",
+  "cases": [
+    {
+      "chapter": "14-extensions",
+      "title": "配置来源：覆盖顺序和旧版迁移",
+      "package": "core",
+      "source": "packages/core/test/config/config.test.ts",
+      "command": [
+        "run",
+        "test",
+        "test/config/config.test.ts",
+        "--test-name-pattern",
+        "loads explicit file and content overrides in priority order|loads opencode JSON and JSONC files from lowest to highest priority|migrates v1 configuration when a v1-only key is present"
+      ],
+      "observation": "通过原版读取器验证较高优先级来源与旧版配置迁移。",
+      "counts": {
+        "pass": 3,
+        "fail": 0
+      },
+      "line": 392
+    },
+    {
+      "chapter": "14-extensions",
+      "title": "Skill：挂到所属的用户消息",
+      "package": "core",
+      "source": "packages/core/test/session-skill.test.ts",
+      "command": [
+        "run",
+        "test",
+        "test/session-skill.test.ts",
+        "--test-name-pattern",
+        "materializes mentioned skills on their owning prompt|refuses blocked skill mentions|publishes raw standalone content"
+      ],
+      "observation": "同一用户消息两处 Skill 引用保留定位，只物化一份正文。权限拒绝时不写入正文。",
+      "counts": {
+        "pass": 3,
+        "fail": 0
+      },
+      "line": 105
+    },
+    {
+      "chapter": "14-extensions",
+      "title": "插件激活、失败隔离和卸载",
+      "package": "core",
+      "source": "packages/core/test/plugin.test.ts",
+      "command": [
+        "run",
+        "test",
+        "test/plugin.test.ts",
+        "--test-name-pattern",
+        "reports a failed plugin without blocking a healthy plugin|unloading a plugin removes its commands|reloading a plugin replaces its command implementation"
+      ],
+      "observation": "原版注册表观察失败隔离、命令替换和卸载清理。",
+      "counts": {
+        "pass": 3,
+        "fail": 0
+      },
+      "line": 170
+    },
+    {
+      "chapter": "14-extensions",
+      "title": "插件更新文件损坏",
+      "package": "core",
+      "source": "packages/core/test/plugin/supervisor-reload.test.ts",
+      "command": [
+        "run",
+        "test",
+        "test/plugin/supervisor-reload.test.ts",
+        "--test-name-pattern",
+        "keeps the running generation when an updated local plugin fails to import"
+      ],
+      "observation": "更新的本地模块导入失败时，旧的一代插件继续服务。",
+      "counts": {
+        "pass": 1,
+        "fail": 0
+      },
+      "line": 254
+    },
+    {
+      "chapter": "15-hooks-mcp",
+      "title": "调用前 Hook：输入修复后再过 schema",
+      "package": "core",
+      "source": "packages/core/test/plugin/tool-input-repair-integration.test.ts",
+      "command": [
+        "run",
+        "test",
+        "test/plugin/tool-input-repair-integration.test.ts",
+        "--test-name-pattern",
+        "repairs tool input before validating its original schema|repairs nested Code Mode calls"
+      ],
+      "observation": "观察修复结果进入真实工具执行器，并验证嵌套调用的参数 schema。",
+      "counts": {
+        "pass": 2,
+        "fail": 0
+      },
+      "line": 19
+    },
+    {
+      "chapter": "15-hooks-mcp",
+      "title": "MCP 两条调用路径和权限",
+      "package": "core",
+      "source": "packages/core/test/mcp.test.ts",
+      "command": [
+        "run",
+        "test",
+        "test/mcp.test.ts",
+        "--test-name-pattern",
+        "forwards the invoking session through direct and Code Mode MCP tools|waits for permission before calling an MCP tool|does not call MCP when permission is blocked"
+      ],
+      "observation": "直接工具与 Code Mode 调用携带自己的 Session 来源，受拒绝的操作不发往 MCP。",
+      "counts": {
+        "pass": 3,
+        "fail": 0
+      },
+      "line": 2853
+    },
+    {
+      "chapter": "15-hooks-mcp",
+      "title": "MCP 动态能力、资源和事件",
+      "package": "core",
+      "source": "packages/core/test/mcp-attach.test.ts",
+      "command": [
+        "run",
+        "test",
+        "test/mcp-attach.test.ts",
+        "--test-name-pattern",
+        "refreshes the top connection's tools when it reports a change"
+      ],
+      "observation": "测试 MCP 连接发出工具目录变化，原版 Location 注册表重新刷新。",
+      "counts": {
+        "pass": 1,
+        "fail": 0
+      },
+      "line": 319
+    },
+    {
+      "chapter": "15-hooks-mcp",
+      "title": "推送事件要先经过权限",
+      "package": "core",
+      "source": "packages/core/test/tool-mcp-events.test.ts",
+      "command": [
+        "run",
+        "test",
+        "test/tool-mcp-events.test.ts",
+        "--test-name-pattern",
+        "lists one server's push events after asking permission"
+      ],
+      "observation": "原版工具先向权限服务询问，再返回 MCP 事件目录。",
+      "counts": {
+        "pass": 1,
+        "fail": 0
+      },
+      "line": 72
+    },
+    {
+      "chapter": "16-clients-protocol",
+      "title": "CLI 路由：本地命令与 Server 连接",
+      "package": "cli",
+      "source": "packages/cli/test/server-connection.test.ts",
+      "command": [
+        "run",
+        "test",
+        "test/server-connection.test.ts",
+        "--test-name-pattern",
+        "global --server and --standalone flags|local config commands"
+      ],
+      "observation": "验证全局连接参数和本地命令的无 Server 路径。",
+      "counts": {
+        "pass": 2,
+        "fail": 0
+      },
+      "line": 81
+    },
+    {
+      "chapter": "16-clients-protocol",
+      "title": "SDK 嵌入式路由与事件取消",
+      "package": "sdk",
+      "source": "packages/sdk/test/promise.test.ts",
+      "command": [
+        "run",
+        "test",
+        "test/promise.test.ts",
+        "--test-name-pattern",
+        "Promise host uses the embedded router|Promise event streams support cancellation"
+      ],
+      "observation": "通过进程内路由走共享 API，并验证事件订阅可取消。",
+      "counts": {
+        "pass": 2,
+        "fail": 0
+      },
+      "line": 7
+    },
+    {
+      "chapter": "16-clients-protocol",
+      "title": "SSE 分片、UTF-8 与 heartbeat",
+      "package": "client",
+      "source": "packages/client/test/promise.test.ts",
+      "command": [
+        "run",
+        "test",
+        "test/promise.test.ts",
+        "--test-name-pattern",
+        "event.subscribe parses split JSON and a split multibyte code point|event.subscribe ignores server heartbeat comments"
+      ],
+      "observation": "客户端按 SSE 边界组帧，兼容跨数据块的字符和心跳注释。",
+      "counts": {
+        "pass": 2,
+        "fail": 0
+      },
+      "line": 844
+    },
+    {
+      "chapter": "16-clients-protocol",
+      "title": "重连后不期待易失事件流重放",
+      "package": "client",
+      "source": "packages/client/test/solid-connection.test.ts",
+      "command": [
+        "run",
+        "test",
+        "test/solid-connection.test.ts",
+        "--test-name-pattern",
+        "a reconnect does not ask the volatile event stream to replay"
+      ],
+      "observation": "重连重新订阅实时事件，客户端状态恢复通过读取模型数据实现。",
+      "counts": {
+        "pass": 1,
+        "fail": 0
+      },
+      "line": 166
+    },
+    {
+      "chapter": "16-clients-protocol",
+      "title": "SSE 服务端订阅与慢消费者",
+      "package": "server",
+      "source": "packages/server/test/event-feed.test.ts",
+      "command": [
+        "run",
+        "test",
+        "test/event-feed.test.ts",
+        "--test-name-pattern",
+        "encodes once and delivers|fails only the subscriber that exceeds its lag capacity|filters internal events"
+      ],
+      "observation": "共享序列化帧、按订阅分隔背压和过滤内部事件。",
+      "counts": {
+        "pass": 3,
+        "fail": 0
+      },
+      "line": 47
+    },
+    {
+      "chapter": "17-ci-release",
+      "title": "实验 API 路径与 OpenAPI 标识一致",
+      "package": "protocol",
+      "source": "packages/protocol/test/experimental-identifiers.test.ts",
+      "command": [
+        "run",
+        "test",
+        "test/experimental-identifiers.test.ts",
+        "--test-name-pattern",
+        "routes under /api/experimental, and only those, have experimental"
+      ],
+      "observation": "执行原版 CI 相关断言，验证 experimental 路径和操作标识匹配。",
+      "counts": {
+        "pass": 1,
+        "fail": 0
+      },
+      "line": 7
+    }
+  ]
+}

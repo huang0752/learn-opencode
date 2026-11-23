@@ -1,0 +1,13 @@
+flowchart TD
+    M["主 Agent 请求 subagent 工具"] --> P["检查父子归属、角色、深度和权限"]
+    C["用户运行自定义命令"] --> T["展开模板，读取 subagent 配置和 Agent 模式"]
+    T -- "当前 Session" --> S["当前 Session 接收展开后的输入"]
+    T -- "独立子 Session" --> N["创建子 Session"]
+    P -- "新派发" --> N
+    P -- "已有子会话" --> E["追加到原子 Session"]
+    N --> I["写入子 inbox，resume: false"]
+    E -- "子会话尚未运行" --> I
+    E -- "子会话正在运行" --> A["按安全边界交付追问"]
+    I --> J["SubagentJob 注册并驱动子执行"]
+    A --> J
+    J --> R["父工具收到子 Session 句柄，继续工作"]

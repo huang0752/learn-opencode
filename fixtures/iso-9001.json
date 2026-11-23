@@ -1,0 +1,16 @@
+{
+  "provenance": "虚构教学案例。步骤顺序用于对照源码，未调用在线模型。",
+  "messageID": "msg_iso_9001",
+  "request": "核对投标人是否提交了本公司持有且在投标截止日仍有效的 ISO 9001 证书。",
+  "pages": {
+    "P04": "投标人：华宁设备服务有限公司。",
+    "P07": "投标截止日期：2026-11-25。",
+    "P12": "ISO 9001 质量管理体系认证。证书持有人：华宁设备服务有限公司。有效期至 2027-06-30。"
+  },
+  "checkpoints": [
+    {"stage": "接收", "inbox": "msg_iso_9001", "history": "尚无用户消息", "visible_to_model": "尚未发出核查请求"},
+    {"stage": "交付", "inbox": "已消费", "history": "user: msg_iso_9001", "visible_to_model": "下一步可读取用户指令"},
+    {"stage": "工具返回", "inbox": "已消费", "history": "用户指令、调用 call_read_p12、同 ID 的结果", "visible_to_model": "下次请求带证书原文，可继续核对主体与截止日"},
+    {"stage": "作答", "inbox": "已消费", "history": "三页证据、核查结论", "visible_to_model": "当前步骤已收尾，Runner 再检查待交付输入"}
+  ]
+}

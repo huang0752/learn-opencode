@@ -1,0 +1,20 @@
+sequenceDiagram
+    participant P as 父 Session
+    participant T as 原版子 Agent 工具
+    participant C as 子 Session 与 Job
+    participant D as 文件 SQLite
+    participant R as 重建后的服务
+    participant M as TestLLM 夹具
+    P->>T: 派发采购取证或发布日志核查
+    T->>C: 注册 Job 并唤醒子执行
+    C->>D: 记录运行标记与 Job
+    C->>M: 首次请求被闸门拦住
+    Note over C,D: 关闭第一套服务 Scope
+    R->>D: 同一 SQLite 重新打开
+    R->>C: 启动扫描恢复子执行
+    C->>M: 第二次请求获得证据
+    C-->>P: 投递一次合成报告
+    P->>M: 手动压缩，摘要请求含子报告
+    M-->>P: 预设摘要与证据
+    P->>M: 接续请求包含 checkpoint 和核查问题
+    M-->>P: 预设结论，验证证据是否进入请求

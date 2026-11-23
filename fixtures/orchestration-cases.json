@@ -1,0 +1,259 @@
+{
+  "commit": "ee5fe34e136488a1839ac73bcca8321c51a31b75",
+  "bun": "1.4.4",
+  "kernel": "原版 Core 测试 + 上游确定性模型夹具",
+  "cases": [
+    {
+      "chapter": "05-subagent-dispatch",
+      "title": "新派发：父 Agent 拿到运行句柄",
+      "source": "packages/core/test/tool-subagent.test.ts",
+      "line": 422,
+      "command": [
+        "run",
+        "test",
+        "test/tool-subagent.test.ts",
+        "--test-name-pattern",
+        "starts a child session and returns the running handle"
+      ],
+      "observation": "工具调用带回运行状态和子 Session ID，子 Session 保存父 ID，任务在后台继续。",
+      "counts": {
+        "pass": 1,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "05-subagent-dispatch",
+      "title": "追加指令：沿用正在运行的子 Session",
+      "source": "packages/core/test/tool-subagent.test.ts",
+      "line": 541,
+      "command": [
+        "run",
+        "test",
+        "test/tool-subagent.test.ts",
+        "--test-name-pattern",
+        "steers a running child session in the background"
+      ],
+      "observation": "通过已有 Session ID 补充任务，调用仍立即返回，子会话后续读取追加指令。",
+      "counts": {
+        "pass": 1,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "05-subagent-dispatch",
+      "title": "代码审查 /review：配置决定执行归属",
+      "source": "packages/core/test/config/command-subagent.test.ts",
+      "line": 55,
+      "command": [
+        "run",
+        "test",
+        "test/config/command-subagent.test.ts",
+        "--test-name-pattern",
+        "without switching the parent|subagent: false overrides"
+      ],
+      "observation": "JSON、旧 Markdown 和 Agent 模式都能走后台派发。显式 subagent:false 时执行回到当前 Session。",
+      "counts": {
+        "pass": 4,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "05-subagent-dispatch",
+      "title": "越权引用：拒绝复用其他父会话的子 Session",
+      "source": "packages/core/test/tool-subagent.test.ts",
+      "line": 648,
+      "command": [
+        "run",
+        "test",
+        "test/tool-subagent.test.ts",
+        "--test-name-pattern",
+        "rejects unrelated children and switches agents on continuation"
+      ],
+      "observation": "会话 ID 不能跨父会话复用，合法续派仍可以按规则更换子 Agent。",
+      "counts": {
+        "pass": 1,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "06-background-jobs",
+      "title": "长测试：先报告仍在运行，再报告最终结果",
+      "source": "packages/core/test/subagent-idle-e2e.test.ts",
+      "line": 406,
+      "command": [
+        "run",
+        "test",
+        "test/subagent-idle-e2e.test.ts",
+        "--test-name-pattern",
+        "reports immediately with running background work and again after the shell exits"
+      ],
+      "observation": "后台 shell 未完成时父会话先收到 Started tests，放行 shell 后再收到 Tests green，两次通知 ID 不同。",
+      "counts": {
+        "pass": 1,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "06-background-jobs",
+      "title": "进程中断：已提交的报告可以补发",
+      "source": "packages/core/test/subagent-idle-e2e.test.ts",
+      "line": 630,
+      "command": [
+        "run",
+        "test",
+        "test/subagent-idle-e2e.test.ts",
+        "--test-name-pattern",
+        "replays the report committed before a crash without running the child again"
+      ],
+      "observation": "重放扫描两次，只交付一份父会话报告，子模型请求仍只有一次。",
+      "counts": {
+        "pass": 1,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "06-background-jobs",
+      "title": "取消与关闭：同一个中断动作有不同后续",
+      "source": "packages/core/test/tool-subagent.test.ts",
+      "line": 1001,
+      "command": [
+        "run",
+        "test",
+        "test/tool-subagent.test.ts",
+        "--test-name-pattern",
+        "interrupts the child only for an explicit cancel and preserves shutdown claims"
+      ],
+      "observation": "显式取消中断子会话，shutdown 路径保留用于恢复的执行标记。",
+      "counts": {
+        "pass": 1,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "06-background-jobs",
+      "title": "写入失败：终态与报告必须同进退",
+      "source": "packages/core/test/subagent-report.test.ts",
+      "line": 481,
+      "command": [
+        "run",
+        "test",
+        "test/subagent-report.test.ts",
+        "--test-name-pattern",
+        "rolls back the idle projection|commits the report and release before delivery"
+      ],
+      "observation": "报告写入失败时回滚 idle 投影及 claim 释放，成功时先提交再投递、确认和唤醒。",
+      "counts": {
+        "pass": 2,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "06-background-jobs",
+      "title": "恢复预算耗尽：失败结算并通知父会话",
+      "source": "packages/core/test/session-execution.test.ts",
+      "line": 1808,
+      "command": [
+        "run",
+        "test",
+        "test/session-execution.test.ts",
+        "--test-name-pattern",
+        "terminalizes a recovered subagent that exhausts its resume budget"
+      ],
+      "observation": "恢复预算耗尽后对子会话结算失败，释放 claim，并把错误回报交给父 Session。",
+      "counts": {
+        "pass": 1,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "07-goal",
+      "title": "日期解析器：复核继续一次，再判完成",
+      "source": "packages/core/test/plugin/goal.test.ts",
+      "line": 60,
+      "command": [
+        "run",
+        "test",
+        "test/plugin/goal.test.ts",
+        "--test-name-pattern",
+        "keeps working in one execution until the reviewer finds the goal met"
+      ],
+      "observation": "复核器给出 continue 和 done，持久目标 complete、rounds=1，并只记录一次最终 idle。",
+      "counts": {
+        "pass": 1,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "07-goal",
+      "title": "后台调查：等子 Agent 结果再复核",
+      "source": "packages/core/test/plugin/goal.test.ts",
+      "line": 178,
+      "command": [
+        "run",
+        "test",
+        "test/plugin/goal.test.ts",
+        "--test-name-pattern",
+        "waits for a background subagent instead of judging"
+      ],
+      "observation": "后台 Job 运行期间零次复核，夹具模拟收到通知后进行一次复核。",
+      "counts": {
+        "pass": 1,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "07-goal",
+      "title": "不再推进：多次只有文字，没有工具动作",
+      "source": "packages/core/test/plugin/goal.test.ts",
+      "line": 100,
+      "command": [
+        "run",
+        "test",
+        "test/plugin/goal.test.ts",
+        "--test-name-pattern",
+        "pauses when rounds keep passing without tool calls"
+      ],
+      "observation": "连续停滞达到阈值后暂停，后续脚本化 done 没有被调用。",
+      "counts": {
+        "pass": 1,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "07-goal",
+      "title": "进程换代：旧进程留下的目标暂停",
+      "source": "packages/core/test/plugin/goal-watchdog.test.ts",
+      "line": 115,
+      "command": [
+        "run",
+        "test",
+        "test/plugin/goal-watchdog.test.ts",
+        "--test-name-pattern",
+        "pauses a goal an earlier server process left active when the plugin starts"
+      ],
+      "observation": "启动时识别旧进程留下的 active 目标并将其暂停。",
+      "counts": {
+        "pass": 1,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "07-goal",
+      "title": "长时间空闲：监测器按活动时间暂停",
+      "source": "packages/core/test/plugin/goal-watchdog.test.ts",
+      "line": 134,
+      "command": [
+        "run",
+        "test",
+        "test/plugin/goal-watchdog.test.ts",
+        "--test-name-pattern",
+        "pauses a goal that sits idle past the limit|keeps waiting while a descendant Session"
+      ],
+      "observation": "模拟时钟覆盖空闲超限和后代持续活动两种情形，验证何时暂停、何时继续等待。",
+      "counts": {
+        "pass": 2,
+        "fail": 0
+      }
+    }
+  ]
+}

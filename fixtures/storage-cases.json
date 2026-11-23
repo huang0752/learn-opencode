@@ -1,0 +1,240 @@
+{
+  "commit": "ee5fe34e136488a1839ac73bcca8321c51a31b75",
+  "bun": "1.4.4",
+  "cases": [
+    {
+      "chapter": "08-events-and-bus",
+      "title": "故意让本地提交失败",
+      "source": "packages/core/test/bus.test.ts",
+      "line": 257,
+      "command": [
+        "run",
+        "test",
+        "test/bus.test.ts",
+        "--test-name-pattern",
+        "rolls back the durable event and projector when the local commit fails"
+      ],
+      "observation": "业务投影、event 行、event_sequence 行均回滚。",
+      "counts": {
+        "pass": 1,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "08-events-and-bus",
+      "title": "关掉历史载荷保留",
+      "source": "packages/core/test/bus.test.ts",
+      "line": 281,
+      "command": [
+        "run",
+        "test",
+        "test/bus.test.ts",
+        "--test-name-pattern",
+        "projects durable events without retaining their payloads|omits live-only events from durable aggregate streams"
+      ],
+      "observation": "durable 投影与序号提交，event 载荷可不留存。纯实时事件没有进入 durable aggregate stream。",
+      "counts": {
+        "pass": 2,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "08-events-and-bus",
+      "title": "批量提交与历史流交接",
+      "source": "packages/core/test/bus.test.ts",
+      "line": 478,
+      "command": [
+        "run",
+        "test",
+        "test/bus.test.ts",
+        "--test-name-pattern",
+        "publishes a durable batch atomically in provided order|rolls back every batch event when a projector fails|catches durable aggregate events published during replay handoff"
+      ],
+      "observation": "批量按给定顺序原子提交，投影失败时整批回滚，历史流与后续实时事件衔接时没有遗失该窗口的已提交事件。",
+      "counts": {
+        "pass": 3,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "08-events-and-bus",
+      "title": "事件版本与 replay owner",
+      "source": "packages/core/test/bus.test.ts",
+      "line": 883,
+      "command": [
+        "run",
+        "test",
+        "test/bus.test.ts",
+        "--test-name-pattern",
+        "dispatches durable projectors by exact event version|claim fences replay owners"
+      ],
+      "observation": "对应历史版本的投影器才执行，其他事件同步所有者受到 replay claim 约束。",
+      "counts": {
+        "pass": 2,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "09-projections-storage",
+      "title": "接收问候后显式恢复",
+      "source": "packages/core/test/session-runner-recorded.test.ts",
+      "line": 185,
+      "command": [
+        "run",
+        "test",
+        "test/session-runner-recorded.test.ts",
+        "--test-name-pattern",
+        "executes one recorded prompt through the recorded HTTP transport"
+      ],
+      "observation": "resume:false 先接收输入，显式 resume 后投影用户和助手消息，模型回复来自原版 HTTP 录制。",
+      "counts": {
+        "pass": 1,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "09-projections-storage",
+      "title": "交付同一条输入并保持顺序",
+      "source": "packages/core/test/session-projector.test.ts",
+      "line": 351,
+      "command": [
+        "run",
+        "test",
+        "test/session-projector.test.ts",
+        "--test-name-pattern",
+        "consumes the pending row and projects the message at promotion|orders projected messages and context by durable aggregate sequence"
+      ],
+      "observation": "输入投影消费待处理行，消息和历史按聚合序号排序。",
+      "counts": {
+        "pass": 2,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "09-projections-storage",
+      "title": "重放输入投影不启动 Runner",
+      "source": "packages/core/test/session-prompt.test.ts",
+      "line": 1156,
+      "command": [
+        "run",
+        "test",
+        "test/session-prompt.test.ts",
+        "--test-name-pattern",
+        "reprojects pending inbox input without scheduling execution"
+      ],
+      "observation": "项目重放可重建待交付内容，重放本身不调度执行。",
+      "counts": {
+        "pass": 1,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "09-projections-storage",
+      "title": "助手子项和媒体引用",
+      "source": "packages/core/test/session-projector.test.ts",
+      "line": 1470,
+      "command": [
+        "run",
+        "test",
+        "test/session-projector.test.ts",
+        "--test-name-pattern",
+        "reads the same reply when experimental.part_rows is switched on, off and on again mid-session|stores media once and refs it from inbox, message, and tool rows"
+      ],
+      "observation": "切换 part_rows 仍读取到同一条回复。开启 media_blob 后，多类会话对象通过引用使用同一份媒体内容。",
+      "counts": {
+        "pass": 2,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "10-restart-recovery",
+      "title": "运行认领：用户中断与服务关闭",
+      "source": "packages/core/test/session-execution.test.ts",
+      "line": 129,
+      "command": [
+        "run",
+        "test",
+        "test/session-execution.test.ts",
+        "--test-name-pattern",
+        "claims at execution start, releases on completion, and preserves through teardown|a user interrupt releases the claim"
+      ],
+      "observation": "正常结束和用户中断释放认领，服务 Scope 关闭保留未完工作的认领。",
+      "counts": {
+        "pass": 2,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "10-restart-recovery",
+      "title": "后台子 Agent 仍在运行",
+      "source": "packages/core/test/session-execution.test.ts",
+      "line": 1386,
+      "command": [
+        "run",
+        "test",
+        "test/session-execution.test.ts",
+        "--test-name-pattern",
+        "resumes a background subagent and notifies its parent exactly once"
+      ],
+      "observation": "恢复扫描再次计入运行尝试，只恢复一次子执行，最后只给父会话一份报告。",
+      "counts": {
+        "pass": 1,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "10-restart-recovery",
+      "title": "报告已完成，退出发生在投递之前",
+      "source": "packages/core/test/session-execution.test.ts",
+      "line": 1523,
+      "command": [
+        "run",
+        "test",
+        "test/session-execution.test.ts",
+        "--test-name-pattern",
+        "delivers a completed outbox row at boot without touching the child|reconciles an outbox row whose notification was already delivered"
+      ],
+      "observation": "待投递报告可直接补发，已交付的报告可对账。子 Session 不需要为生成报告再运行一次。",
+      "counts": {
+        "pass": 2,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "10-restart-recovery",
+      "title": "恢复预算与显式取消",
+      "source": "packages/core/test/session-execution.test.ts",
+      "line": 1808,
+      "command": [
+        "run",
+        "test",
+        "test/session-execution.test.ts",
+        "--test-name-pattern",
+        "terminalizes a recovered subagent that exhausts its resume budget|honors a job cancellation persisted"
+      ],
+      "observation": "预算耗尽走失败终态，已经持久化的取消仍然有效。",
+      "counts": {
+        "pass": 2,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "10-restart-recovery",
+      "title": "前台 Shell 已经退出，恢复后的 Session 怎样继续",
+      "source": "packages/core/test/shell-restart.test.ts",
+      "line": 122,
+      "command": [
+        "run",
+        "test",
+        "test/shell-restart.test.ts",
+        "--test-name-pattern",
+        "settles a foreground call.*and resumes its session"
+      ],
+      "observation": "测试宿主更换服务 Scope，通过测试守护进程恢复工具结果，再推进会话。",
+      "counts": {
+        "pass": 2,
+        "fail": 0
+      }
+    }
+  ]
+}

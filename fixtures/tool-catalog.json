@@ -1,0 +1,772 @@
+{
+  "source_commit": "ee5fe34e136488a1839ac73bcca8321c51a31b75",
+  "kind": "固定提交源码清点",
+  "scope": "随仓固定定义与快照生成入口。运行时配置可以添加外部 MCP 或插件工具。",
+  "items": [
+    {
+      "group": "Core",
+      "name": "glob",
+      "direct_name": "glob",
+      "code_mode_path": null,
+      "placement": "直接",
+      "condition": "完整 Code Mode 时会话工具策略可隐藏",
+      "source": "packages/core/src/tool/plugin/glob.ts"
+    },
+    {
+      "group": "Core",
+      "name": "grep",
+      "direct_name": "grep",
+      "code_mode_path": null,
+      "placement": "直接",
+      "condition": "完整 Code Mode 时会话工具策略可隐藏",
+      "source": "packages/core/src/tool/plugin/grep.ts"
+    },
+    {
+      "group": "Core",
+      "name": "webfetch",
+      "direct_name": "webfetch",
+      "code_mode_path": null,
+      "placement": "直接",
+      "condition": "完整 Code Mode 时会话工具策略可隐藏",
+      "source": "packages/core/src/tool/plugin/webfetch.ts"
+    },
+    {
+      "group": "Core",
+      "name": "question",
+      "direct_name": "question",
+      "code_mode_path": null,
+      "placement": "直接",
+      "condition": "会话权限与请求策略",
+      "source": "packages/core/src/tool/plugin/question.ts"
+    },
+    {
+      "group": "Core",
+      "name": "subagent",
+      "direct_name": "subagent",
+      "code_mode_path": null,
+      "placement": "直接",
+      "condition": "会话权限与请求策略",
+      "source": "packages/core/src/tool/plugin/subagent.ts"
+    },
+    {
+      "group": "Core",
+      "name": "skill",
+      "direct_name": "skill",
+      "code_mode_path": null,
+      "placement": "直接",
+      "condition": "会话权限与请求策略",
+      "source": "packages/core/src/tool/plugin/skill.ts"
+    },
+    {
+      "group": "Core",
+      "name": "todowrite",
+      "direct_name": "todowrite",
+      "code_mode_path": null,
+      "placement": "直接",
+      "condition": "显式启用 todo",
+      "source": "packages/core/src/tool/plugin/todo.ts"
+    },
+    {
+      "group": "Core",
+      "name": "read",
+      "direct_name": "read",
+      "code_mode_path": "tools.read",
+      "placement": "完整模式可入目录",
+      "condition": "会话权限与请求策略",
+      "source": "packages/core/src/tool/plugin/read.ts"
+    },
+    {
+      "group": "Core",
+      "name": "edit",
+      "direct_name": "edit",
+      "code_mode_path": "tools.edit",
+      "placement": "完整模式可入目录",
+      "condition": "模型工具策略，编辑权限",
+      "source": "packages/core/src/tool/plugin/edit.ts"
+    },
+    {
+      "group": "Core",
+      "name": "write",
+      "direct_name": "write",
+      "code_mode_path": "tools.write",
+      "placement": "完整模式可入目录",
+      "condition": "模型工具策略，编辑权限",
+      "source": "packages/core/src/tool/plugin/write.ts"
+    },
+    {
+      "group": "Core",
+      "name": "patch",
+      "direct_name": "patch",
+      "code_mode_path": "tools.patch",
+      "placement": "完整模式可入目录",
+      "condition": "模型工具策略，编辑权限",
+      "source": "packages/core/src/tool/plugin/patch.ts"
+    },
+    {
+      "group": "Core",
+      "name": "shell",
+      "direct_name": "shell",
+      "code_mode_path": "tools.shell",
+      "placement": "完整模式可入目录",
+      "condition": "会话权限与请求策略",
+      "source": "packages/core/src/tool/plugin/shell.ts"
+    },
+    {
+      "group": "Core",
+      "name": "websearch",
+      "direct_name": "websearch",
+      "code_mode_path": "tools.websearch",
+      "placement": "完整模式可入目录",
+      "condition": "可用搜索提供方",
+      "source": "packages/core/src/tool/plugin/websearch.ts"
+    },
+    {
+      "group": "Core",
+      "name": "experimental_image_generate",
+      "direct_name": "experimental_image_generate",
+      "code_mode_path": null,
+      "placement": "直接",
+      "condition": "可用图像模型和图像生成配置",
+      "source": "packages/core/src/tool/plugin/image-generate.ts"
+    },
+    {
+      "group": "Core",
+      "name": "experimental_video_generate",
+      "direct_name": "experimental_video_generate",
+      "code_mode_path": null,
+      "placement": "直接",
+      "condition": "video_generate 与可用视频模型",
+      "source": "packages/core/src/tool/plugin/video-generate.ts"
+    },
+    {
+      "group": "Core",
+      "name": "opencode.session.rename",
+      "direct_name": "opencode_session_rename",
+      "code_mode_path": "tools.opencode.session.rename",
+      "placement": "目录或直接",
+      "condition": "会话权限与请求策略",
+      "source": "packages/core/src/tool/plugin/opencode.ts"
+    },
+    {
+      "group": "Core",
+      "name": "opencode.session.move",
+      "direct_name": "opencode_session_move",
+      "code_mode_path": "tools.opencode.session.move",
+      "placement": "目录或直接",
+      "condition": "会话权限与请求策略",
+      "source": "packages/core/src/tool/plugin/opencode.ts"
+    },
+    {
+      "group": "Core",
+      "name": "opencode.worktree_create",
+      "direct_name": "opencode_worktree_create",
+      "code_mode_path": "tools.opencode.worktree_create",
+      "placement": "目录或直接",
+      "condition": "会话权限与请求策略",
+      "source": "packages/core/src/tool/plugin/opencode.ts"
+    },
+    {
+      "group": "Core",
+      "name": "opencode.worktree_list",
+      "direct_name": "opencode_worktree_list",
+      "code_mode_path": "tools.opencode.worktree_list",
+      "placement": "目录或直接",
+      "condition": "会话权限与请求策略",
+      "source": "packages/core/src/tool/plugin/opencode.ts"
+    },
+    {
+      "group": "Core",
+      "name": "opencode.worktree_remove",
+      "direct_name": "opencode_worktree_remove",
+      "code_mode_path": "tools.opencode.worktree_remove",
+      "placement": "目录或直接",
+      "condition": "会话权限与请求策略",
+      "source": "packages/core/src/tool/plugin/opencode.ts"
+    },
+    {
+      "group": "Core",
+      "name": "opencode.models",
+      "direct_name": "opencode_models",
+      "code_mode_path": "tools.opencode.models",
+      "placement": "目录或直接",
+      "condition": "会话权限与请求策略",
+      "source": "packages/core/src/tool/plugin/opencode.ts"
+    },
+    {
+      "group": "Core",
+      "name": "opencode.session.search",
+      "direct_name": "opencode_session_search",
+      "code_mode_path": "tools.opencode.session.search",
+      "placement": "目录或直接",
+      "condition": "sqlite_fts",
+      "source": "packages/core/src/tool/plugin/session-search.ts"
+    },
+    {
+      "group": "Core",
+      "name": "opencode.session.read",
+      "direct_name": "opencode_session_read",
+      "code_mode_path": "tools.opencode.session.read",
+      "placement": "目录或直接",
+      "condition": "sqlite_fts",
+      "source": "packages/core/src/tool/plugin/session-search.ts"
+    },
+    {
+      "group": "Core",
+      "name": "opencode.list_mcp_resources",
+      "direct_name": "opencode_list_mcp_resources",
+      "code_mode_path": "tools.opencode.list_mcp_resources",
+      "placement": "目录或直接",
+      "condition": "MCP 服务连接与资源权限",
+      "source": "packages/core/src/tool/plugin/mcp-resource.ts"
+    },
+    {
+      "group": "Core",
+      "name": "opencode.read_mcp_resource",
+      "direct_name": "opencode_read_mcp_resource",
+      "code_mode_path": "tools.opencode.read_mcp_resource",
+      "placement": "目录或直接",
+      "condition": "MCP 服务连接与资源权限",
+      "source": "packages/core/src/tool/plugin/mcp-resource.ts"
+    },
+    {
+      "group": "Core",
+      "name": "opencode.list_mcp_events",
+      "direct_name": "opencode_list_mcp_events",
+      "code_mode_path": "tools.opencode.list_mcp_events",
+      "placement": "目录或直接",
+      "condition": "MCP 服务连接与事件权限",
+      "source": "packages/core/src/tool/plugin/mcp-events.ts"
+    },
+    {
+      "group": "Core",
+      "name": "opencode.artifact_create",
+      "direct_name": "opencode_artifact_create",
+      "code_mode_path": "tools.opencode.artifact_create",
+      "placement": "目录或直接",
+      "condition": "artifacts 与产物提供方",
+      "source": "packages/core/src/tool/plugin/artifact.ts"
+    },
+    {
+      "group": "Core",
+      "name": "opencode.artifact_read",
+      "direct_name": "opencode_artifact_read",
+      "code_mode_path": "tools.opencode.artifact_read",
+      "placement": "目录或直接",
+      "condition": "artifacts 与产物提供方",
+      "source": "packages/core/src/tool/plugin/artifact.ts"
+    },
+    {
+      "group": "Core",
+      "name": "opencode.artifact_update",
+      "direct_name": "opencode_artifact_update",
+      "code_mode_path": "tools.opencode.artifact_update",
+      "placement": "目录或直接",
+      "condition": "artifacts 与产物提供方",
+      "source": "packages/core/src/tool/plugin/artifact.ts"
+    },
+    {
+      "group": "Core",
+      "name": "opencode.artifact_delete",
+      "direct_name": "opencode_artifact_delete",
+      "code_mode_path": "tools.opencode.artifact_delete",
+      "placement": "目录或直接",
+      "condition": "artifacts 与产物提供方",
+      "source": "packages/core/src/tool/plugin/artifact.ts"
+    },
+    {
+      "group": "Core",
+      "name": "automation.create",
+      "direct_name": "automation_create",
+      "code_mode_path": "tools.automation.create",
+      "placement": "目录或直接",
+      "condition": "automations 配置与项目权限",
+      "source": "packages/core/src/tool/plugin/automation.ts"
+    },
+    {
+      "group": "Core",
+      "name": "automation.list",
+      "direct_name": "automation_list",
+      "code_mode_path": "tools.automation.list",
+      "placement": "目录或直接",
+      "condition": "automations 配置与项目权限",
+      "source": "packages/core/src/tool/plugin/automation.ts"
+    },
+    {
+      "group": "Core",
+      "name": "automation.pause",
+      "direct_name": "automation_pause",
+      "code_mode_path": "tools.automation.pause",
+      "placement": "目录或直接",
+      "condition": "automations 配置与项目权限",
+      "source": "packages/core/src/tool/plugin/automation.ts"
+    },
+    {
+      "group": "Core",
+      "name": "automation.resume",
+      "direct_name": "automation_resume",
+      "code_mode_path": "tools.automation.resume",
+      "placement": "目录或直接",
+      "condition": "automations 配置与项目权限",
+      "source": "packages/core/src/tool/plugin/automation.ts"
+    },
+    {
+      "group": "Core",
+      "name": "automation.delete",
+      "direct_name": "automation_delete",
+      "code_mode_path": "tools.automation.delete",
+      "placement": "目录或直接",
+      "condition": "automations 配置与项目权限",
+      "source": "packages/core/src/tool/plugin/automation.ts"
+    },
+    {
+      "group": "Core",
+      "name": "machine.list",
+      "direct_name": "machine_list",
+      "code_mode_path": "tools.machine.list",
+      "placement": "目录或直接",
+      "condition": "machines",
+      "source": "packages/core/src/tool/plugin/machine.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.tabs.list",
+      "direct_name": "browser_tabs_list",
+      "code_mode_path": "tools.browser.tabs.list",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.tabs.open",
+      "direct_name": "browser_tabs_open",
+      "code_mode_path": "tools.browser.tabs.open",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.tabs.focus",
+      "direct_name": "browser_tabs_focus",
+      "code_mode_path": "tools.browser.tabs.focus",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.tabs.close",
+      "direct_name": "browser_tabs_close",
+      "code_mode_path": "tools.browser.tabs.close",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.navigate",
+      "direct_name": "browser_navigate",
+      "code_mode_path": "tools.browser.navigate",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.back",
+      "direct_name": "browser_back",
+      "code_mode_path": "tools.browser.back",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.forward",
+      "direct_name": "browser_forward",
+      "code_mode_path": "tools.browser.forward",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.reload",
+      "direct_name": "browser_reload",
+      "code_mode_path": "tools.browser.reload",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.stop",
+      "direct_name": "browser_stop",
+      "code_mode_path": "tools.browser.stop",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.frames",
+      "direct_name": "browser_frames",
+      "code_mode_path": "tools.browser.frames",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.snapshot",
+      "direct_name": "browser_snapshot",
+      "code_mode_path": "tools.browser.snapshot",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.find",
+      "direct_name": "browser_find",
+      "code_mode_path": "tools.browser.find",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.evaluate",
+      "direct_name": "browser_evaluate",
+      "code_mode_path": "tools.browser.evaluate",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.click",
+      "direct_name": "browser_click",
+      "code_mode_path": "tools.browser.click",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.hover",
+      "direct_name": "browser_hover",
+      "code_mode_path": "tools.browser.hover",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.drag",
+      "direct_name": "browser_drag",
+      "code_mode_path": "tools.browser.drag",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.fill",
+      "direct_name": "browser_fill",
+      "code_mode_path": "tools.browser.fill",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.fill_form",
+      "direct_name": "browser_fill_form",
+      "code_mode_path": "tools.browser.fill_form",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.select",
+      "direct_name": "browser_select",
+      "code_mode_path": "tools.browser.select",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.check",
+      "direct_name": "browser_check",
+      "code_mode_path": "tools.browser.check",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.press",
+      "direct_name": "browser_press",
+      "code_mode_path": "tools.browser.press",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.scroll",
+      "direct_name": "browser_scroll",
+      "code_mode_path": "tools.browser.scroll",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.wait",
+      "direct_name": "browser_wait",
+      "code_mode_path": "tools.browser.wait",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.screenshot",
+      "direct_name": "browser_screenshot",
+      "code_mode_path": "tools.browser.screenshot",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.dialog",
+      "direct_name": "browser_dialog",
+      "code_mode_path": "tools.browser.dialog",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.files.upload",
+      "direct_name": "browser_files_upload",
+      "code_mode_path": "tools.browser.files.upload",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.files.drop",
+      "direct_name": "browser_files_drop",
+      "code_mode_path": "tools.browser.files.drop",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.files.list",
+      "direct_name": "browser_files_list",
+      "code_mode_path": "tools.browser.files.list",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.files.get",
+      "direct_name": "browser_files_get",
+      "code_mode_path": "tools.browser.files.get",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.console",
+      "direct_name": "browser_console",
+      "code_mode_path": "tools.browser.console",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.network.list",
+      "direct_name": "browser_network_list",
+      "code_mode_path": "tools.browser.network.list",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.network.get",
+      "direct_name": "browser_network_get",
+      "code_mode_path": "tools.browser.network.get",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.trace.start",
+      "direct_name": "browser_trace_start",
+      "code_mode_path": "tools.browser.trace.start",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.trace.stop",
+      "direct_name": "browser_trace_stop",
+      "code_mode_path": "tools.browser.trace.stop",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.trace.analyze",
+      "direct_name": "browser_trace_analyze",
+      "code_mode_path": "tools.browser.trace.analyze",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.cpu.start",
+      "direct_name": "browser_cpu_start",
+      "code_mode_path": "tools.browser.cpu.start",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.cpu.stop",
+      "direct_name": "browser_cpu_stop",
+      "code_mode_path": "tools.browser.cpu.stop",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.cpu.analyze",
+      "direct_name": "browser_cpu_analyze",
+      "code_mode_path": "tools.browser.cpu.analyze",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.heap.snapshot",
+      "direct_name": "browser_heap_snapshot",
+      "code_mode_path": "tools.browser.heap.snapshot",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.heap.summary",
+      "direct_name": "browser_heap_summary",
+      "code_mode_path": "tools.browser.heap.summary",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.heap.query",
+      "direct_name": "browser_heap_query",
+      "code_mode_path": "tools.browser.heap.query",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.heap.object",
+      "direct_name": "browser_heap_object",
+      "code_mode_path": "tools.browser.heap.object",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.heap.compare",
+      "direct_name": "browser_heap_compare",
+      "code_mode_path": "tools.browser.heap.compare",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Browser",
+      "name": "browser.lighthouse",
+      "direct_name": "browser_lighthouse",
+      "code_mode_path": "tools.browser.lighthouse",
+      "placement": "目录或直接",
+      "condition": "桌面连接与 browser 权限",
+      "source": "packages/plugin-browser/src/rpc.ts"
+    },
+    {
+      "group": "Console",
+      "name": "console_watch.watch",
+      "direct_name": "console_watch_watch",
+      "code_mode_path": "tools.console_watch.watch",
+      "placement": "目录或直接",
+      "condition": "console_watches、Console 连接与远程配置",
+      "source": "packages/core/src/plugin/provider/opencode-watches.ts"
+    },
+    {
+      "group": "Console",
+      "name": "console_watch.unwatch",
+      "direct_name": "console_watch_unwatch",
+      "code_mode_path": "tools.console_watch.unwatch",
+      "placement": "目录或直接",
+      "condition": "console_watches、Console 连接与远程配置",
+      "source": "packages/core/src/plugin/provider/opencode-watches.ts"
+    },
+    {
+      "group": "Console",
+      "name": "console_watch.watches",
+      "direct_name": "console_watch_watches",
+      "code_mode_path": "tools.console_watch.watches",
+      "placement": "目录或直接",
+      "condition": "console_watches、Console 连接与远程配置",
+      "source": "packages/core/src/plugin/provider/opencode-watches.ts"
+    },
+    {
+      "group": "Console",
+      "name": "console_watch.events",
+      "direct_name": "console_watch_events",
+      "code_mode_path": "tools.console_watch.events",
+      "placement": "目录或直接",
+      "condition": "console_watches、Console 连接与远程配置",
+      "source": "packages/core/src/plugin/provider/opencode-watches.ts"
+    },
+    {
+      "group": "Code Mode",
+      "name": "execute",
+      "direct_name": "execute",
+      "code_mode_path": null,
+      "placement": "快照生成",
+      "condition": "execute 权限未整项拒绝",
+      "source": "packages/core/src/codemode/tool.ts"
+    }
+  ]
+}

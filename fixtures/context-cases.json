@@ -1,0 +1,186 @@
+{
+  "commit": "ee5fe34e136488a1839ac73bcca8321c51a31b75",
+  "bun": "1.4.4",
+  "cases": [
+    {
+      "chapter": "11-context-history",
+      "title": "长会话：定位最后一个成功压缩点",
+      "source": "packages/core/test/session-compaction.test.ts",
+      "line": 270,
+      "command": [
+        "run",
+        "test",
+        "test/session-compaction.test.ts",
+        "--test-name-pattern",
+        "history from the latest completed compaction matches the full transcript cut there|history never decodes rows before the latest compaction or its kept tail"
+      ],
+      "observation": "有失败记录时仍采用上一份成功检查点，keepID 尾部参与窗口，窗口前旧行不进入模型读取。",
+      "counts": {
+        "pass": 2,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "11-context-history",
+      "title": "切换模型：回退到兼容的检查点",
+      "source": "packages/core/test/session-native.test.ts",
+      "line": 312,
+      "command": [
+        "run",
+        "test",
+        "test/session-native.test.ts",
+        "--test-name-pattern",
+        "falls back to an earlier compatible native or local checkpoint|skips a malformed native window"
+      ],
+      "observation": "遇到不兼容或无法解码的原生窗口时，读取路径回退并保留可发送历史。",
+      "counts": {
+        "pass": 2,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "11-context-history",
+      "title": "长会话中途改项目指令",
+      "source": "packages/core/test/session-runner.test.ts",
+      "line": 1993,
+      "command": [
+        "run",
+        "test",
+        "test/session-runner.test.ts",
+        "--test-name-pattern",
+        "keeps the initial instructions stable and derives a chronological update from values|moves the epoch at compaction and narrates later changes"
+      ],
+      "observation": "未压缩时初始指令保持稳定，新增变化按时序叙述；压缩完成后新的指令 epoch 接管。",
+      "counts": {
+        "pass": 2,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "12-token-budget",
+      "title": "从阈值前一 Token 到刚好达到阈值",
+      "source": "packages/core/test/session-compaction.test.ts",
+      "line": 387,
+      "command": [
+        "run",
+        "test",
+        "test/session-compaction.test.ts",
+        "--test-name-pattern",
+        "auto compaction estimates current content against the buffered prompt ceiling"
+      ],
+      "observation": "模型输入上限、缓冲配置和累计估计决定是否进入自动压缩；普通输出上限变化不等于阈值变化。",
+      "counts": {
+        "pass": 1,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "12-token-budget",
+      "title": "摘要请求的输入与回复空间",
+      "source": "packages/core/test/session-compaction.test.ts",
+      "line": 806,
+      "command": [
+        "run",
+        "test",
+        "test/session-compaction.test.ts",
+        "--test-name-pattern",
+        "summary compaction past the ceiling keeps the conversation unchanged|compaction lowers the output limit when it sends a request it could not shrink|compaction keeps the output limit for a request that fits"
+      ],
+      "observation": "压缩已触发时仍可沿用能装下的完整请求，放不下时另行缩减且可能调整摘要输出上限。",
+      "counts": {
+        "pass": 3,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "12-token-budget",
+      "title": "提前写摘要，到阈值后再换入",
+      "source": "packages/core/test/session-compaction.test.ts",
+      "line": 1225,
+      "command": [
+        "run",
+        "test",
+        "test/session-compaction.test.ts",
+        "--test-name-pattern",
+        "automatic compaction swaps in the background summary without another model call|a background summary starts a fixed lead before the threshold|a background summary starts on a window whose threshold is under"
+      ],
+      "observation": "后台预生成和正式换入分开；符合条件时，换入已有摘要无需再调用一次摘要模型。",
+      "counts": {
+        "pass": 3,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "13-compaction",
+      "title": "长会话不断追加，摘要和近期原话怎样更新",
+      "source": "packages/core/test/session-runner.test.ts",
+      "line": 3640,
+      "command": [
+        "run",
+        "test",
+        "test/session-runner.test.ts",
+        "--test-name-pattern",
+        "automatically compacts into a completed summary and retained recent turn"
+      ],
+      "observation": "第一次接续带摘要和近期原话，下一次摘要请求可读到上一份摘要和保留的尾部。",
+      "counts": {
+        "pass": 1,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "13-compaction",
+      "title": "模型服务商判溢出，运行时如何重试",
+      "source": "packages/core/test/session-runner.test.ts",
+      "line": 3825,
+      "command": [
+        "run",
+        "test",
+        "test/session-runner.test.ts",
+        "--test-name-pattern",
+        "forces one compaction and retries after provider context overflow|does not recover provider context overflow when automatic compaction is disabled"
+      ],
+      "observation": "有恢复条件时，原请求之后出现摘要请求与接续请求。禁用自动压缩时不进入该恢复路径。",
+      "counts": {
+        "pass": 2,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "13-compaction",
+      "title": "超窗时先缩工具输出",
+      "source": "packages/core/test/session-runner.test.ts",
+      "line": 3499,
+      "command": [
+        "run",
+        "test",
+        "test/session-runner.test.ts",
+        "--test-name-pattern",
+        "drops tool output in serialized compaction history before omitting exchanges"
+      ],
+      "observation": "摘要请求降级为可裁剪文本时，优先缩减工具输出，再考虑更早的完整轮次。",
+      "counts": {
+        "pass": 1,
+        "fail": 0
+      }
+    },
+    {
+      "chapter": "13-compaction",
+      "title": "原生压缩与下一次 HTTP 请求",
+      "source": "packages/core/test/session-native-compaction.test.ts",
+      "line": 248,
+      "command": [
+        "run",
+        "test",
+        "test/session-native-compaction.test.ts",
+        "--test-name-pattern",
+        "manual trigger persists and continues, retains earlier users repeatedly|manual and automatic endpoint compaction keep the provider replacement unchanged|automatic native failures, interruptions, and overflows retain the checkpoint"
+      ],
+      "observation": "真实协议编译器生成原生检查点输入，当前指令和新用户请求依然可见，失败时保留此前检查点。",
+      "counts": {
+        "pass": 3,
+        "fail": 0
+      }
+    }
+  ]
+}

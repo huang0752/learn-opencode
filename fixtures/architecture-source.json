@@ -1,0 +1,29 @@
+{
+  "commit": "ee5fe34e136488a1839ac73bcca8321c51a31b75",
+  "slices": [
+    {
+      "title": "CLI 命令的惰性绑定",
+      "path": "packages/cli/src/framework/runtime.ts",
+      "start": 84,
+      "text": "export function run(commands: Spec.Any, handlers: ReadonlyArray<LazyHandler>, options: { readonly version: string }) {\n  return Command.run(provide(commands, handlers).pipe(Command.withGlobalFlags([PrintLogs])), options) as Effect.Effect<\n    void,\n    unknown,\n    Command.Environment\n  >\n}\n\nfunction provide(node: Spec.Any, handlers: ReadonlyArray<LazyHandler>): ProvidedCommand {\n  const handler = handlers.find((handler) => handler.spec === node.spec)\n  const spec = handler\n    ? node.spec.pipe(\n        Command.withHandler((input) =>\n          Effect.gen(function* () {\n            if (yield* PrintLogs) process.env.OPENCODE_PRINT_LOGS = \"1\"\n            const module = yield* Effect.promise(handler.load)\n            return yield* module.default(input)\n          }),\n        ),\n      )\n    : node.spec\n  if (!Object.keys(node.commands).length) return spec as ProvidedCommand\n  const children = Object.values(node.commands)\n  return spec.pipe(\n    Command.withSubcommands(["
+    },
+    {
+      "title": "HTTP prompt 路由",
+      "path": "packages/server/src/handlers/session.ts",
+      "start": 289,
+      "text": "      .handle(\n        \"session.prompt\",\n        Effect.fn(function* (ctx) {\n          return {\n            data: yield* session\n              .prompt({\n                sessionID: ctx.params.sessionID,\n                id: ctx.payload.id,\n                text: ctx.payload.text,\n                files: ctx.payload.files,\n                agents: ctx.payload.agents,\n                skills: ctx.payload.skills,\n                metadata: ctx.payload.metadata,\n                delivery: ctx.payload.delivery,\n                resume: ctx.payload.resume,\n              })\n              .pipe(\n                Effect.catchTag(\"Session.NotFoundError\", missingSession),\n                Effect.catchTag(\"Session.PromptConflictError\", (error) =>\n                  Effect.fail(\n                    new ConflictError({"
+    },
+    {
+      "title": "嵌入式 SDK 的进程内 fetch",
+      "path": "packages/sdk/src/promise.ts",
+      "start": 52,
+      "text": "      },\n      embed,\n    ),\n  )\n  const client = OpenCode.make({ baseUrl: \"http://opencode.local\", fetch: host.fetch })\n  const register = async (plugin: Plugin.Plugin) => {\n    const { PluginPromise } = await import(\"@opencode/core/plugin/promise\")\n    return host.runtime.runPromise(host.plugins.register(PluginPromise.fromPromise(plugin)))\n  }\n  return {\n    ...client,\n    sessions: client.session,\n    events: client.event,\n    plugin: Object.assign(register, client.plugin),\n    close: host.close,"
+    },
+    {
+      "title": "Server 的 SSE 入口",
+      "path": "packages/server/src/handlers/event.ts",
+      "start": 11,
+      "text": "    return handlers.handleRaw(\"event.subscribe\", (ctx) =>\n      Effect.gen(function* () {\n        const connected = {\n          id: Event.ID.create(),\n          type: \"server.connected\",\n          data: {},\n        } as const\n        const output = Stream.unwrap(\n          feed\n            .subscribe(ctx.query.types)\n            .pipe(Effect.map((live) => Stream.make(EventFeed.frame(connected)).pipe(Stream.concat(live)))),\n        )\n        const heartbeat = Stream.tick(\"15 seconds\").pipe(Stream.map(() => \": heartbeat\\n\\n\"))\n        return HttpServerResponse.stream(\n          output.pipe(Stream.merge(heartbeat, { haltStrategy: \"left\" }), Stream.encodeText),\n          {\n            contentType: \"text/event-stream\",\n            headers: {\n              \"Cache-Control\": \"no-cache, no-transform\",\n              \"X-Accel-Buffering\": \"no\",\n              \"X-Content-Type-Options\": \"nosniff\",\n            },\n          },\n        )"
+    }
+  ]
+}

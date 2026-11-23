@@ -1,0 +1,236 @@
+{
+  "commit": "ee5fe34e136488a1839ac73bcca8321c51a31b75",
+  "observations": {
+    "08-events-and-bus": [
+      {
+        "phase": "rollback",
+        "projection": [],
+        "event": [],
+        "event_sequence": []
+      },
+      {
+        "phase": "persist_false",
+        "projection": [
+          {
+            "value": "projected"
+          }
+        ],
+        "event": [],
+        "event_sequence": [
+          {
+            "seq": 0
+          }
+        ]
+      }
+    ],
+    "09-projections-storage": [
+      {
+        "phase": "admitted",
+        "session_inbox": [
+          {
+            "id": "msg_2067b46a9001yPKnYhnt8n0Xbv",
+            "delivery": "steer",
+            "enqueued_seq": 0
+          }
+        ],
+        "session_message": [],
+        "event": [
+          {
+            "type": "session.inbox.enqueued.1",
+            "seq": 0
+          }
+        ]
+      },
+      {
+        "phase": "run_finished",
+        "session_inbox": [],
+        "session_message": [
+          {
+            "id": "msg_2067b46a9001yPKnYhnt8n0Xbv",
+            "type": "user",
+            "seq": 2
+          },
+          {
+            "id": "msg_2067b46b4001tWFHGuAZfif1yT",
+            "type": "assistant",
+            "seq": 3
+          }
+        ],
+        "event": [
+          {
+            "type": "session.inbox.enqueued.1",
+            "seq": 0
+          },
+          {
+            "type": "session.instructions.updated.2",
+            "seq": 1
+          },
+          {
+            "type": "session.inbox.delivered.1",
+            "seq": 2
+          },
+          {
+            "type": "session.step.started.1",
+            "seq": 3
+          },
+          {
+            "type": "session.step.first-token.1",
+            "seq": 4
+          },
+          {
+            "type": "session.text.started.1",
+            "seq": 5
+          },
+          {
+            "type": "session.text.ended.1",
+            "seq": 6
+          },
+          {
+            "type": "session.step.streamed.1",
+            "seq": 7
+          },
+          {
+            "type": "session.step.ended.1",
+            "seq": 8
+          }
+        ]
+      }
+    ],
+    "10-restart-recovery": [
+      {
+        "phase": "running_child_before_scan",
+        "session_v2": [
+          {
+            "id": "ses_subagent_recovery_child",
+            "claimed_at": 1795405146673,
+            "attempts": 0
+          }
+        ],
+        "job": [
+          {
+            "kind": "subagent",
+            "status": "running",
+            "notification_id": "msg_2067c6a32001QDbZKEsB5zEeFu"
+          }
+        ],
+        "parent_inbox": [],
+        "drains": []
+      },
+      {
+        "phase": "running_child_after_claim",
+        "session_v2": [
+          {
+            "id": "ses_subagent_recovery_child",
+            "claimed_at": 1795405146673,
+            "attempts": 1
+          }
+        ],
+        "job": [
+          {
+            "kind": "subagent",
+            "status": "running",
+            "notification_id": "msg_2067c6a32001QDbZKEsB5zEeFu"
+          }
+        ],
+        "parent_inbox": [],
+        "drains": [
+          "ses_subagent_recovery_child",
+          "ses_subagent_recovery_parent"
+        ]
+      },
+      {
+        "phase": "running_child_finished",
+        "session_v2": [
+          {
+            "id": "ses_subagent_recovery_child",
+            "claimed_at": null,
+            "attempts": 0
+          }
+        ],
+        "job": [],
+        "parent_inbox": [
+          {
+            "id": "msg_2067c6a32001QDbZKEsB5zEeFu",
+            "type": "synthetic",
+            "delivery": "steer"
+          }
+        ],
+        "drains": [
+          "ses_subagent_recovery_child",
+          "ses_subagent_recovery_parent",
+          "ses_subagent_recovery_parent"
+        ]
+      },
+      {
+        "phase": "completed_report_before_scan",
+        "session_v2": [
+          {
+            "id": "ses_outbox_child",
+            "claimed_at": null,
+            "attempts": 0
+          }
+        ],
+        "job": [
+          {
+            "kind": "subagent",
+            "status": "completed",
+            "notification_id": "msg_2067c6a540017K4m72lXqcz11x"
+          }
+        ],
+        "parent_inbox": [],
+        "drains": []
+      },
+      {
+        "phase": "completed_report_after_scan",
+        "session_v2": [
+          {
+            "id": "ses_outbox_child",
+            "claimed_at": null,
+            "attempts": 0
+          }
+        ],
+        "job": [],
+        "parent_inbox": [
+          {
+            "id": "msg_2067c6a540017K4m72lXqcz11x",
+            "type": "synthetic",
+            "delivery": "steer"
+          }
+        ],
+        "drains": [
+          "ses_outbox_parent"
+        ]
+      },
+      {
+        "phase": "reopened_sqlite_after_bun_exit",
+        "session_v2": [
+          {
+            "id": "ses_outbox_child",
+            "claimed_at": null,
+            "attempts": 0
+          },
+          {
+            "id": "ses_subagent_recovery_child",
+            "claimed_at": null,
+            "attempts": 0
+          }
+        ],
+        "job": [],
+        "parent_inbox": [
+          {
+            "id": "msg_2067c6a540017K4m72lXqcz11x",
+            "session_id": "ses_outbox_parent",
+            "type": "synthetic",
+            "delivery": "steer"
+          },
+          {
+            "id": "msg_2067c6a32001QDbZKEsB5zEeFu",
+            "session_id": "ses_subagent_recovery_parent",
+            "type": "synthetic",
+            "delivery": "steer"
+          }
+        ]
+      }
+    ]
+  }
+}

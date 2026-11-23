@@ -1,0 +1,31 @@
+flowchart LR
+    subgraph UI["接入层"]
+      T["CLI / TUI"]
+      D["桌面端"]
+      S["嵌入式 SDK"]
+    end
+    subgraph API["共享 API"]
+      P["Protocol / Client"]
+      H["Server 路由"]
+    end
+    subgraph CORE["执行层"]
+      I["Session Inbox"]
+      R["执行协调器 / Runner"]
+      J["后台 Job"]
+      B["Bus / 投影"]
+    end
+    subgraph INF["执行依赖"]
+      M["AI 模型传输"]
+      U["工具 / 插件"]
+      DB[("SQLite")]
+    end
+    T --> P
+    D --> P
+    S -->|"进程内 fetch"| H
+    P --> H --> I --> R
+    R --> M
+    R --> U
+    R --> B --> DB
+    U --> J
+    J -->|"子会话或结果"| I
+    B -.->|"事件流"| H

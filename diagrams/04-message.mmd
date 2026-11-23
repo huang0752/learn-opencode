@@ -1,0 +1,22 @@
+sequenceDiagram
+    participant C as 客户端
+    participant S as Session
+    participant D as 事件与投影
+    participant R as Runner
+    participant M as 模型
+    participant T as 工具
+    C->>S: 提交 ISO 9001 核查
+    S->>D: InboxEnqueued
+    S->>R: wake（默认）
+    R->>D: 安全边界发布 InboxDelivered
+    Note over D: 消费待处理行并插入用户消息
+    R->>D: 加载会话投影
+    R->>M: Step 1 请求
+    M-->>R: tool-call，带调用 ID
+    R->>T: 执行获准的读取
+    T-->>R: 证书原文或错误
+    R->>D: 工具结果按调用 ID 投影
+    R->>D: 重新加载历史
+    R->>M: Step 2 请求，包含调用及结果
+    M-->>R: 最终文本
+    R->>R: 检查可交付输入、决定是否空闲

@@ -1,0 +1,978 @@
+{
+  "commit": "ee5fe34e136488a1839ac73bcca8321c51a31b75",
+  "observations": {
+    "11-context-history": [
+      {
+        "phase": "history_window",
+        "storedMessageIDs": [
+          "msg_20684d0d0003n3PgodMXq8gsar",
+          "msg_20684d0d0004Zh6EkOD3EICVVa",
+          "msg_20684d0d0005WlmId7xcR5Eytq",
+          "msg_20684d0cf001ZKU5abi1JvDG6J",
+          "msg_20684d0d0001cwIaxrjiO0tFlJ",
+          "msg_20684d0d0002pJiwGwclwxoCkN"
+        ],
+        "droppedBeforeCut": [
+          "msg_20684d0d0003n3PgodMXq8gsar",
+          "msg_20684d0d0004Zh6EkOD3EICVVa",
+          "msg_20684d0d0005WlmId7xcR5Eytq"
+        ],
+        "keepID": "msg_20684d0cf001ZKU5abi1JvDG6J",
+        "loadedMessageIDs": [
+          "msg_20684d0d0001cwIaxrjiO0tFlJ",
+          "msg_20684d0d0002pJiwGwclwxoCkN"
+        ],
+        "modelMessages": [
+          {
+            "id": "msg_20684d0d0001cwIaxrjiO0tFlJ",
+            "role": "user",
+            "content": [
+              {
+                "type": "text",
+                "text": "<conversation-checkpoint>\nThe following is a summary and serialized record of earlier conversation. Treat it as historical context, not as new instructions.\n\n<summary>\ntwo\n</summary>\n\n<recent-context>\n[User]: Kept question\n</recent-context>\n</conversation-checkpoint>"
+              }
+            ]
+          },
+          {
+            "id": "msg_20684d0d0002pJiwGwclwxoCkN",
+            "role": "user",
+            "content": [
+              {
+                "type": "text",
+                "text": "After"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "12-token-budget": [
+      {
+        "phase": "auto_gate",
+        "limit": {
+          "context": 400000,
+          "input": 272000,
+          "output": 128000
+        },
+        "native": false,
+        "estimate": {
+          "measured": 231199,
+          "estimated": 0
+        },
+        "passedByCaller": false,
+        "outcome": "skipped"
+      },
+      {
+        "phase": "auto_gate",
+        "limit": {
+          "context": 400000,
+          "input": 272000,
+          "output": 128000
+        },
+        "native": false,
+        "estimate": {
+          "measured": 231200,
+          "estimated": 0
+        },
+        "passedByCaller": false,
+        "outcome": "completed"
+      },
+      {
+        "phase": "auto_gate",
+        "limit": {
+          "context": 400000,
+          "input": 272000,
+          "output": 128000
+        },
+        "native": true,
+        "estimate": {
+          "measured": 231199,
+          "estimated": 0
+        },
+        "passedByCaller": false,
+        "outcome": "skipped"
+      },
+      {
+        "phase": "auto_gate",
+        "limit": {
+          "context": 400000,
+          "input": 272000,
+          "output": 128000
+        },
+        "native": true,
+        "estimate": {
+          "measured": 231200,
+          "estimated": 0
+        },
+        "passedByCaller": false,
+        "outcome": "failed"
+      },
+      {
+        "phase": "auto_gate",
+        "limit": {
+          "context": 0,
+          "output": 0
+        },
+        "native": true,
+        "estimate": {
+          "measured": 1000000,
+          "estimated": 0
+        },
+        "passedByCaller": false,
+        "outcome": "skipped"
+      },
+      {
+        "phase": "auto_gate",
+        "limit": {
+          "context": 128000,
+          "input": 272000,
+          "output": 128000
+        },
+        "native": false,
+        "estimate": {
+          "measured": 108799,
+          "estimated": 0
+        },
+        "passedByCaller": false,
+        "outcome": "skipped"
+      },
+      {
+        "phase": "auto_gate",
+        "limit": {
+          "context": 128000,
+          "input": 272000,
+          "output": 128000
+        },
+        "native": false,
+        "estimate": {
+          "measured": 108800,
+          "estimated": 0
+        },
+        "passedByCaller": false,
+        "outcome": "completed"
+      },
+      {
+        "phase": "auto_gate",
+        "limit": {
+          "context": 0,
+          "input": 272000,
+          "output": 0
+        },
+        "native": false,
+        "estimate": {
+          "measured": 200000,
+          "estimated": 0
+        },
+        "passedByCaller": false,
+        "outcome": "skipped"
+      },
+      {
+        "phase": "auto_gate",
+        "limit": {
+          "context": 100000,
+          "output": 10000
+        },
+        "native": false,
+        "estimate": {
+          "measured": 83999,
+          "estimated": 0
+        },
+        "passedByCaller": false,
+        "outcome": "skipped"
+      },
+      {
+        "phase": "auto_gate",
+        "limit": {
+          "context": 100000,
+          "output": 10000
+        },
+        "native": false,
+        "estimate": {
+          "measured": 84000,
+          "estimated": 0
+        },
+        "passedByCaller": false,
+        "outcome": "completed"
+      },
+      {
+        "phase": "auto_gate",
+        "limit": {
+          "context": 100000,
+          "output": 30000
+        },
+        "native": false,
+        "estimate": {
+          "measured": 83999,
+          "estimated": 0
+        },
+        "passedByCaller": false,
+        "outcome": "skipped"
+      },
+      {
+        "phase": "auto_gate",
+        "limit": {
+          "context": 100000,
+          "output": 30000
+        },
+        "native": false,
+        "estimate": {
+          "measured": 84000,
+          "estimated": 0
+        },
+        "passedByCaller": false,
+        "outcome": "completed"
+      },
+      {
+        "phase": "auto_gate",
+        "limit": {
+          "context": 100000,
+          "output": 10000
+        },
+        "native": false,
+        "estimate": {
+          "measured": 60000,
+          "estimated": 0
+        },
+        "passedByCaller": false,
+        "outcome": "skipped"
+      },
+      {
+        "phase": "auto_gate",
+        "limit": {
+          "context": 100000,
+          "output": 10000
+        },
+        "native": false,
+        "estimate": {
+          "measured": 84000,
+          "estimated": 0
+        },
+        "passedByCaller": false,
+        "outcome": "completed"
+      },
+      {
+        "phase": "auto_gate",
+        "limit": {
+          "context": 100000,
+          "output": 10000
+        },
+        "native": false,
+        "estimate": {
+          "measured": 74999,
+          "estimated": 0
+        },
+        "passedByCaller": false,
+        "outcome": "skipped"
+      },
+      {
+        "phase": "auto_gate",
+        "limit": {
+          "context": 100000,
+          "output": 10000
+        },
+        "native": false,
+        "estimate": {
+          "measured": 75000,
+          "estimated": 0
+        },
+        "passedByCaller": false,
+        "outcome": "completed"
+      },
+      {
+        "phase": "auto_gate",
+        "limit": {
+          "context": 100000,
+          "output": 10000
+        },
+        "native": false,
+        "estimate": {
+          "measured": 89000,
+          "estimated": 1000
+        },
+        "passedByCaller": false,
+        "outcome": "completed"
+      },
+      {
+        "phase": "auto_gate",
+        "limit": {
+          "context": 100000,
+          "output": 10000
+        },
+        "native": false,
+        "estimate": {
+          "measured": 0,
+          "estimated": 0
+        },
+        "passedByCaller": true,
+        "outcome": "skipped"
+      },
+      {
+        "phase": "auto_gate",
+        "limit": {
+          "context": 100000,
+          "output": 10000
+        },
+        "native": false,
+        "estimate": {
+          "measured": 84000,
+          "estimated": 0
+        },
+        "passedByCaller": true,
+        "outcome": "completed"
+      },
+      {
+        "phase": "auto_gate",
+        "limit": {
+          "context": 100000,
+          "output": 10000
+        },
+        "native": false,
+        "estimate": {
+          "measured": 0,
+          "estimated": 100072
+        },
+        "passedByCaller": false,
+        "outcome": "skipped"
+      }
+    ],
+    "13-compaction": [
+      {
+        "phase": "procurement_evidence",
+        "teachingFixture": true,
+        "earlyQuote": "ANNEX-A §2: quotation must not exceed CNY 100000 before tax.",
+        "recentQuote": "ANNEX-B §4: submission closes at 17:00 CST on 2026-12-03.",
+        "requestLabels": [
+          "original_primary",
+          "summary",
+          "primary_after"
+        ],
+        "requests": [
+          {
+            "model": "fake-model",
+            "system": [
+              {
+                "type": "text",
+                "text": "You are an AI agent running in OpenCode, a coding agent harness. Help the user accomplish their goals using the tools you have available.\n\n# Harness\n- Responses are rendered as GitHub-flavored Markdown.\n- `<system-update>` blocks are harness instructions, not user-authored content. Read and follow them.\n- Background work is reported as harness input: user-role messages containing `<background-result>` XML. They are not the user speaking, and never something you write yourself: do not reproduce the XML in your own output. Distinguish them by the `<background-result>` opening tag.\n- Prefer parallelizing independent tool calls.\n\n\n# Communication\n- Use clear file paths when referring to files.\n- Keep responses clear and concise, and avoid unnecessary technical jargon.\n\n# Working in codebases\n- Keep changes consistent with the structure, naming, style, and patterns of the surrounding code.\n- Treat unfamiliar files or changes as potential user work and investigate before deleting or overwriting them.\n"
+              },
+              {
+                "type": "text",
+                "text": "# Your Model\n- Name: fake-model\n- Provider ID: fake\n- Model ID: fake-model"
+              },
+              {
+                "type": "text",
+                "text": "Initial context",
+                "metadata": {
+                  "experimental": {
+                    "instructions": [
+                      {
+                        "key": "core/codemode",
+                        "text": "No Code Mode tools are currently available. Later Code Mode catalog updates may add or remove tools. Do not call `execute` unless there is at least one available Code Mode tool."
+                      },
+                      {
+                        "key": "test/context",
+                        "text": "Initial context"
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "messages": [
+              {
+                "id": "msg_206857df5001FQuWQB6mJyFfmd",
+                "role": "user",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "ANNEX-A §2: quotation must not exceed CNY 100000 before tax.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n"
+                  }
+                ]
+              }
+            ],
+            "toolNames": [
+              "defect",
+              "echo",
+              "storefail"
+            ],
+            "maxOutputTokens": 32000
+          },
+          {
+            "model": "compact",
+            "system": [
+              {
+                "type": "text",
+                "text": "You are an AI agent running in OpenCode, a coding agent harness. Help the user accomplish their goals using the tools you have available.\n\n# Harness\n- Responses are rendered as GitHub-flavored Markdown.\n- `<system-update>` blocks are harness instructions, not user-authored content. Read and follow them.\n- Background work is reported as harness input: user-role messages containing `<background-result>` XML. They are not the user speaking, and never something you write yourself: do not reproduce the XML in your own output. Distinguish them by the `<background-result>` opening tag.\n- Prefer parallelizing independent tool calls.\n\n\n# Communication\n- Use clear file paths when referring to files.\n- Keep responses clear and concise, and avoid unnecessary technical jargon.\n\n# Working in codebases\n- Keep changes consistent with the structure, naming, style, and patterns of the surrounding code.\n- Treat unfamiliar files or changes as potential user work and investigate before deleting or overwriting them.\n"
+              },
+              {
+                "type": "text",
+                "text": "# Your Model\n- Name: compact\n- Provider ID: fake\n- Model ID: compact"
+              },
+              {
+                "type": "text",
+                "text": "Initial context",
+                "metadata": {
+                  "experimental": {
+                    "instructions": [
+                      {
+                        "key": "core/codemode",
+                        "text": "No Code Mode tools are currently available. Later Code Mode catalog updates may add or remove tools. Do not call `execute` unless there is at least one available Code Mode tool."
+                      },
+                      {
+                        "key": "test/context",
+                        "text": "Initial context"
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "messages": [
+              {
+                "id": "msg_206857df5001FQuWQB6mJyFfmd",
+                "role": "user",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "ANNEX-A §2: quotation must not exceed CNY 100000 before tax.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n  Prior pricing working notes and attachments index.\n"
+                  }
+                ]
+              },
+              {
+                "id": "msg_206857e04001K19whdSHpxg3xq",
+                "role": "assistant",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Earlier procurement notes received."
+                  }
+                ]
+              },
+              {
+                "id": "msg_206857e11001joiNG0g1lD3nf1",
+                "role": "user",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "ANNEX-B §4: submission closes at 17:00 CST on 2026-12-03.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n"
+                  }
+                ]
+              },
+              {
+                "role": "user",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "You MUST summarize the conversation above into a structured summary that will be given to another agent to resume the work.\n\nSummarize only what the user and the assistant said and did. Leave out instructions and setup the assistant was given rather than told by the user: repository conventions, instruction files such as AGENTS.md, and environment details like the session ID. The next agent receives current versions of all of these separately.\n\nYou MUST use this format for your response (you may omit sections that aren't applicable). Do not include the <template> tags in your response.\n<template>\n## Objective\n- [one or two brief sentences describing what the user is trying to accomplish]\n\n## Requirements\n- [constraints, preferences, requirements, and scope boundaries stated by the user, or \"(none)\"]\n\n## Decisions\n- [decisions already made and why, or \"(none)\"]\n\n## Work State\nBreak the objective into smaller goals and report which are completed, which are being worked on, and which are blocked.\n### Completed\n- [goals that have been completed; otherwise \"(none)\"]\n\n### Active\n- [goals currently being worked on; otherwise \"(none)\"]\n\n### Blocked\n- [anything blocking progress, and why; otherwise \"(none)\"]\n\n## Next Move\n1. [ordered list of next actions, or \"(none)\"]\n\n## Relevant Files\nList the files and directories, other than the current working directory, that another agent would need to open to continue this work. Include at most 15, most important first. Do not list every file that was read or changed. Include paths outside the current working directory when relevant. If none, write \"(none)\".\n- `[file or directory path]`: [brief reason it matters]\n\n## Important Context\n- [facts the next agent cannot continue without and cannot easily find on its own; or \"(none)\"]\n</template>\n\nRules:\n- Keep each section concise. Use terse, single-line bullets, not prose paragraphs or nested lists.\n- Prefer short references over detailed restatement. It is fine to leave out information the next agent can recover from the code or the files listed above.\n- Preserve exact file paths, symbols, commands, error strings, URLs, and identifiers.\n- Carry forward only user questions or requests that remain unanswered or require further action. Do not repeat ones that newer history has answered or resolved. Preserve exact wording when carrying one forward.\n- Preserve consequential workflow state, including whether changes are uncommitted, committed, pushed, under review, or merged.\n- Do not mention the summary process or that context was compacted.\n\nDo not continue the task or call tools.\n\nReturn only the structured summary in the requested format. Do not include a preamble, explanation, or other commentary."
+                  }
+                ]
+              }
+            ],
+            "toolNames": [
+              "defect",
+              "echo",
+              "storefail"
+            ],
+            "maxOutputTokens": 50
+          },
+          {
+            "model": "compact",
+            "system": [
+              {
+                "type": "text",
+                "text": "You are an AI agent running in OpenCode, a coding agent harness. Help the user accomplish their goals using the tools you have available.\n\n# Harness\n- Responses are rendered as GitHub-flavored Markdown.\n- `<system-update>` blocks are harness instructions, not user-authored content. Read and follow them.\n- Background work is reported as harness input: user-role messages containing `<background-result>` XML. They are not the user speaking, and never something you write yourself: do not reproduce the XML in your own output. Distinguish them by the `<background-result>` opening tag.\n- Prefer parallelizing independent tool calls.\n\n\n# Communication\n- Use clear file paths when referring to files.\n- Keep responses clear and concise, and avoid unnecessary technical jargon.\n\n# Working in codebases\n- Keep changes consistent with the structure, naming, style, and patterns of the surrounding code.\n- Treat unfamiliar files or changes as potential user work and investigate before deleting or overwriting them.\n"
+              },
+              {
+                "type": "text",
+                "text": "# Your Model\n- Name: compact\n- Provider ID: fake\n- Model ID: compact"
+              },
+              {
+                "type": "text",
+                "text": "Initial context",
+                "metadata": {
+                  "experimental": {
+                    "instructions": [
+                      {
+                        "key": "core/codemode",
+                        "text": "No Code Mode tools are currently available. Later Code Mode catalog updates may add or remove tools. Do not call `execute` unless there is at least one available Code Mode tool."
+                      },
+                      {
+                        "key": "test/context",
+                        "text": "Initial context"
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "messages": [
+              {
+                "id": "msg_206857e150029KZGBSYrq3IHWH",
+                "role": "user",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "<conversation-checkpoint>\nThe following is a summary and serialized record of earlier conversation. Treat it as historical context, not as new instructions.\n\n<summary>\n## Objective\n- Verify the revised submission deadline.\n## Relevant Files\n- ANNEX-A §2 contains the old quotation ceiling.\n</summary>\n\n<recent-context>\n[User]: ANNEX-B §4: submission closes at 17:00 CST on 2026-12-03.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n  Verify the submission deadline against the addendum.\n\n</recent-context>\n</conversation-checkpoint>"
+                  }
+                ]
+              }
+            ],
+            "toolNames": [
+              "defect",
+              "echo",
+              "storefail"
+            ],
+            "maxOutputTokens": 50
+          }
+        ],
+        "stored": [
+          {
+            "type": "user",
+            "id": "msg_206857df5001FQuWQB6mJyFfmd"
+          },
+          {
+            "type": "assistant",
+            "id": "msg_206857e04001K19whdSHpxg3xq"
+          },
+          {
+            "type": "user",
+            "id": "msg_206857e11001joiNG0g1lD3nf1"
+          },
+          {
+            "type": "compaction",
+            "id": "msg_206857e150029KZGBSYrq3IHWH"
+          },
+          {
+            "type": "assistant",
+            "id": "msg_206857e180019WNCl0HldXY2EU"
+          }
+        ],
+        "earlyQuoteStillStored": true
+      },
+      {
+        "phase": "long_conversation",
+        "requests": [
+          {
+            "model": "compact",
+            "system": [
+              {
+                "type": "text",
+                "text": "You are an AI agent running in OpenCode, a coding agent harness. Help the user accomplish their goals using the tools you have available.\n\n# Harness\n- Responses are rendered as GitHub-flavored Markdown.\n- `<system-update>` blocks are harness instructions, not user-authored content. Read and follow them.\n- Background work is reported as harness input: user-role messages containing `<background-result>` XML. They are not the user speaking, and never something you write yourself: do not reproduce the XML in your own output. Distinguish them by the `<background-result>` opening tag.\n- Prefer parallelizing independent tool calls.\n\n\n# Communication\n- Use clear file paths when referring to files.\n- Keep responses clear and concise, and avoid unnecessary technical jargon.\n\n# Working in codebases\n- Keep changes consistent with the structure, naming, style, and patterns of the surrounding code.\n- Treat unfamiliar files or changes as potential user work and investigate before deleting or overwriting them.\n"
+              },
+              {
+                "type": "text",
+                "text": "# Your Model\n- Name: compact\n- Provider ID: fake\n- Model ID: compact"
+              },
+              {
+                "type": "text",
+                "text": "Initial context",
+                "metadata": {
+                  "experimental": {
+                    "instructions": [
+                      {
+                        "key": "core/codemode",
+                        "text": "No Code Mode tools are currently available. Later Code Mode catalog updates may add or remove tools. Do not call `execute` unless there is at least one available Code Mode tool."
+                      },
+                      {
+                        "key": "test/context",
+                        "text": "Initial context"
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "messages": [
+              {
+                "id": "msg_206857e32001sp5vMnjQMQxcgy",
+                "role": "user",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question "
+                  }
+                ]
+              },
+              {
+                "id": "msg_206857e37001mWQVeh7xgkGTxq",
+                "role": "assistant",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Earlier answer"
+                  }
+                ]
+              },
+              {
+                "id": "msg_206857e3c001rGPASgLxIu9rCl",
+                "role": "user",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request "
+                  }
+                ]
+              },
+              {
+                "role": "user",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "You MUST summarize the conversation above into a structured summary that will be given to another agent to resume the work.\n\nSummarize only what the user and the assistant said and did. Leave out instructions and setup the assistant was given rather than told by the user: repository conventions, instruction files such as AGENTS.md, and environment details like the session ID. The next agent receives current versions of all of these separately.\n\nYou MUST use this format for your response (you may omit sections that aren't applicable). Do not include the <template> tags in your response.\n<template>\n## Objective\n- [one or two brief sentences describing what the user is trying to accomplish]\n\n## Requirements\n- [constraints, preferences, requirements, and scope boundaries stated by the user, or \"(none)\"]\n\n## Decisions\n- [decisions already made and why, or \"(none)\"]\n\n## Work State\nBreak the objective into smaller goals and report which are completed, which are being worked on, and which are blocked.\n### Completed\n- [goals that have been completed; otherwise \"(none)\"]\n\n### Active\n- [goals currently being worked on; otherwise \"(none)\"]\n\n### Blocked\n- [anything blocking progress, and why; otherwise \"(none)\"]\n\n## Next Move\n1. [ordered list of next actions, or \"(none)\"]\n\n## Relevant Files\nList the files and directories, other than the current working directory, that another agent would need to open to continue this work. Include at most 15, most important first. Do not list every file that was read or changed. Include paths outside the current working directory when relevant. If none, write \"(none)\".\n- `[file or directory path]`: [brief reason it matters]\n\n## Important Context\n- [facts the next agent cannot continue without and cannot easily find on its own; or \"(none)\"]\n</template>\n\nRules:\n- Keep each section concise. Use terse, single-line bullets, not prose paragraphs or nested lists.\n- Prefer short references over detailed restatement. It is fine to leave out information the next agent can recover from the code or the files listed above.\n- Preserve exact file paths, symbols, commands, error strings, URLs, and identifiers.\n- Carry forward only user questions or requests that remain unanswered or require further action. Do not repeat ones that newer history has answered or resolved. Preserve exact wording when carrying one forward.\n- Preserve consequential workflow state, including whether changes are uncommitted, committed, pushed, under review, or merged.\n- Do not mention the summary process or that context was compacted.\n\nDo not continue the task or call tools.\n\nReturn only the structured summary in the requested format. Do not include a preamble, explanation, or other commentary."
+                  }
+                ]
+              }
+            ],
+            "toolNames": [
+              "defect",
+              "echo",
+              "storefail"
+            ],
+            "maxOutputTokens": 50
+          },
+          {
+            "model": "compact",
+            "system": [
+              {
+                "type": "text",
+                "text": "You are an AI agent running in OpenCode, a coding agent harness. Help the user accomplish their goals using the tools you have available.\n\n# Harness\n- Responses are rendered as GitHub-flavored Markdown.\n- `<system-update>` blocks are harness instructions, not user-authored content. Read and follow them.\n- Background work is reported as harness input: user-role messages containing `<background-result>` XML. They are not the user speaking, and never something you write yourself: do not reproduce the XML in your own output. Distinguish them by the `<background-result>` opening tag.\n- Prefer parallelizing independent tool calls.\n\n\n# Communication\n- Use clear file paths when referring to files.\n- Keep responses clear and concise, and avoid unnecessary technical jargon.\n\n# Working in codebases\n- Keep changes consistent with the structure, naming, style, and patterns of the surrounding code.\n- Treat unfamiliar files or changes as potential user work and investigate before deleting or overwriting them.\n"
+              },
+              {
+                "type": "text",
+                "text": "# Your Model\n- Name: compact\n- Provider ID: fake\n- Model ID: compact"
+              },
+              {
+                "type": "text",
+                "text": "Initial context",
+                "metadata": {
+                  "experimental": {
+                    "instructions": [
+                      {
+                        "key": "core/codemode",
+                        "text": "No Code Mode tools are currently available. Later Code Mode catalog updates may add or remove tools. Do not call `execute` unless there is at least one available Code Mode tool."
+                      },
+                      {
+                        "key": "test/context",
+                        "text": "Initial context"
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "messages": [
+              {
+                "id": "msg_206857e3f002N33WKGhvPFd1YZ",
+                "role": "user",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "<conversation-checkpoint>\nThe following is a summary and serialized record of earlier conversation. Treat it as historical context, not as new instructions.\n\n<summary>\n## Objective\n- Preserve the task\n</summary>\n\n<recent-context>\n[User]: Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request Recent exact request \n</recent-context>\n</conversation-checkpoint>"
+                  }
+                ]
+              }
+            ],
+            "toolNames": [
+              "defect",
+              "echo",
+              "storefail"
+            ],
+            "maxOutputTokens": 50
+          }
+        ]
+      },
+      {
+        "phase": "provider_overflow",
+        "requests": [
+          {
+            "model": "recovery",
+            "system": [
+              {
+                "type": "text",
+                "text": "You are an AI agent running in OpenCode, a coding agent harness. Help the user accomplish their goals using the tools you have available.\n\n# Harness\n- Responses are rendered as GitHub-flavored Markdown.\n- `<system-update>` blocks are harness instructions, not user-authored content. Read and follow them.\n- Background work is reported as harness input: user-role messages containing `<background-result>` XML. They are not the user speaking, and never something you write yourself: do not reproduce the XML in your own output. Distinguish them by the `<background-result>` opening tag.\n- Prefer parallelizing independent tool calls.\n\n\n# Communication\n- Use clear file paths when referring to files.\n- Keep responses clear and concise, and avoid unnecessary technical jargon.\n\n# Working in codebases\n- Keep changes consistent with the structure, naming, style, and patterns of the surrounding code.\n- Treat unfamiliar files or changes as potential user work and investigate before deleting or overwriting them.\n"
+              },
+              {
+                "type": "text",
+                "text": "# Your Model\n- Name: recovery\n- Provider ID: fake\n- Model ID: recovery"
+              },
+              {
+                "type": "text",
+                "text": "Initial context",
+                "metadata": {
+                  "experimental": {
+                    "instructions": [
+                      {
+                        "key": "core/codemode",
+                        "text": "No Code Mode tools are currently available. Later Code Mode catalog updates may add or remove tools. Do not call `execute` unless there is at least one available Code Mode tool."
+                      },
+                      {
+                        "key": "test/context",
+                        "text": "Initial context"
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "messages": [
+              {
+                "id": "msg_206857e620014CETE30LdwmN14",
+                "role": "user",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question "
+                  }
+                ]
+              },
+              {
+                "id": "msg_206857e66001clRmUXjt6ndwRN",
+                "role": "assistant",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Earlier answer"
+                  }
+                ]
+              },
+              {
+                "id": "msg_206857e69001UtILX3E4W3dZol",
+                "role": "user",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Continue"
+                  }
+                ]
+              }
+            ],
+            "toolNames": [
+              "defect",
+              "echo",
+              "storefail"
+            ],
+            "maxOutputTokens": 1000
+          },
+          {
+            "model": "recovery",
+            "system": [
+              {
+                "type": "text",
+                "text": "You are an AI agent running in OpenCode, a coding agent harness. Help the user accomplish their goals using the tools you have available.\n\n# Harness\n- Responses are rendered as GitHub-flavored Markdown.\n- `<system-update>` blocks are harness instructions, not user-authored content. Read and follow them.\n- Background work is reported as harness input: user-role messages containing `<background-result>` XML. They are not the user speaking, and never something you write yourself: do not reproduce the XML in your own output. Distinguish them by the `<background-result>` opening tag.\n- Prefer parallelizing independent tool calls.\n\n\n# Communication\n- Use clear file paths when referring to files.\n- Keep responses clear and concise, and avoid unnecessary technical jargon.\n\n# Working in codebases\n- Keep changes consistent with the structure, naming, style, and patterns of the surrounding code.\n- Treat unfamiliar files or changes as potential user work and investigate before deleting or overwriting them.\n"
+              },
+              {
+                "type": "text",
+                "text": "# Your Model\n- Name: recovery\n- Provider ID: fake\n- Model ID: recovery"
+              },
+              {
+                "type": "text",
+                "text": "Initial context",
+                "metadata": {
+                  "experimental": {
+                    "instructions": [
+                      {
+                        "key": "core/codemode",
+                        "text": "No Code Mode tools are currently available. Later Code Mode catalog updates may add or remove tools. Do not call `execute` unless there is at least one available Code Mode tool."
+                      },
+                      {
+                        "key": "test/context",
+                        "text": "Initial context"
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "messages": [
+              {
+                "role": "user",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "[User]: Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier questi\n[… 9900 characters omitted …]\nlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question Earlier question "
+                  }
+                ]
+              },
+              {
+                "role": "user",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "You MUST summarize the conversation above into a structured summary that will be given to another agent to resume the work.\n\nSummarize only what the user and the assistant said and did. Leave out instructions and setup the assistant was given rather than told by the user: repository conventions, instruction files such as AGENTS.md, and environment details like the session ID. The next agent receives current versions of all of these separately.\n\nYou MUST use this format for your response (you may omit sections that aren't applicable). Do not include the <template> tags in your response.\n<template>\n## Objective\n- [one or two brief sentences describing what the user is trying to accomplish]\n\n## Requirements\n- [constraints, preferences, requirements, and scope boundaries stated by the user, or \"(none)\"]\n\n## Decisions\n- [decisions already made and why, or \"(none)\"]\n\n## Work State\nBreak the objective into smaller goals and report which are completed, which are being worked on, and which are blocked.\n### Completed\n- [goals that have been completed; otherwise \"(none)\"]\n\n### Active\n- [goals currently being worked on; otherwise \"(none)\"]\n\n### Blocked\n- [anything blocking progress, and why; otherwise \"(none)\"]\n\n## Next Move\n1. [ordered list of next actions, or \"(none)\"]\n\n## Relevant Files\nList the files and directories, other than the current working directory, that another agent would need to open to continue this work. Include at most 15, most important first. Do not list every file that was read or changed. Include paths outside the current working directory when relevant. If none, write \"(none)\".\n- `[file or directory path]`: [brief reason it matters]\n\n## Important Context\n- [facts the next agent cannot continue without and cannot easily find on its own; or \"(none)\"]\n</template>\n\nRules:\n- Keep each section concise. Use terse, single-line bullets, not prose paragraphs or nested lists.\n- Prefer short references over detailed restatement. It is fine to leave out information the next agent can recover from the code or the files listed above.\n- Preserve exact file paths, symbols, commands, error strings, URLs, and identifiers.\n- Carry forward only user questions or requests that remain unanswered or require further action. Do not repeat ones that newer history has answered or resolved. Preserve exact wording when carrying one forward.\n- Preserve consequential workflow state, including whether changes are uncommitted, committed, pushed, under review, or merged.\n- Do not mention the summary process or that context was compacted.\n\nDo not continue the task or call tools.\n\nReturn only the structured summary in the requested format. Do not include a preamble, explanation, or other commentary."
+                  }
+                ]
+              }
+            ],
+            "toolNames": [],
+            "maxOutputTokens": 1000
+          },
+          {
+            "model": "recovery",
+            "system": [
+              {
+                "type": "text",
+                "text": "You are an AI agent running in OpenCode, a coding agent harness. Help the user accomplish their goals using the tools you have available.\n\n# Harness\n- Responses are rendered as GitHub-flavored Markdown.\n- `<system-update>` blocks are harness instructions, not user-authored content. Read and follow them.\n- Background work is reported as harness input: user-role messages containing `<background-result>` XML. They are not the user speaking, and never something you write yourself: do not reproduce the XML in your own output. Distinguish them by the `<background-result>` opening tag.\n- Prefer parallelizing independent tool calls.\n\n\n# Communication\n- Use clear file paths when referring to files.\n- Keep responses clear and concise, and avoid unnecessary technical jargon.\n\n# Working in codebases\n- Keep changes consistent with the structure, naming, style, and patterns of the surrounding code.\n- Treat unfamiliar files or changes as potential user work and investigate before deleting or overwriting them.\n"
+              },
+              {
+                "type": "text",
+                "text": "# Your Model\n- Name: recovery\n- Provider ID: fake\n- Model ID: recovery"
+              },
+              {
+                "type": "text",
+                "text": "Initial context",
+                "metadata": {
+                  "experimental": {
+                    "instructions": [
+                      {
+                        "key": "core/codemode",
+                        "text": "No Code Mode tools are currently available. Later Code Mode catalog updates may add or remove tools. Do not call `execute` unless there is at least one available Code Mode tool."
+                      },
+                      {
+                        "key": "test/context",
+                        "text": "Initial context"
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "messages": [
+              {
+                "id": "msg_206857e6e0014j6Vso3ahtz3H3",
+                "role": "user",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "<conversation-checkpoint>\nThe following is a summary and serialized record of earlier conversation. Treat it as historical context, not as new instructions.\n\n<summary>\n## Objective\n- Recover overflow\n</summary>\n\n<recent-context>\n[User]: Continue\n</recent-context>\n</conversation-checkpoint>"
+                  }
+                ]
+              }
+            ],
+            "toolNames": [
+              "defect",
+              "echo",
+              "storefail"
+            ],
+            "maxOutputTokens": 1000
+          }
+        ]
+      },
+      {
+        "phase": "native_wire",
+        "requests": [
+          {
+            "model": "gpt-5.4-mini",
+            "input": [
+              {
+                "type": "message",
+                "role": "developer",
+                "content": "You are an AI agent running in OpenCode, a coding agent harness. Help the user accomplish their goals using the tools you have available.\n\n# Harness\n- Responses are rendered as GitHub-flavored Markdown.\n- `<system-update>` blocks are harness instructions, not user-authored content. Read and follow them.\n- Background work is reported as harness input: user-role messages containing `<background-result>` XML. They are not the user speaking, and never something you write yourself: do not reproduce the XML in your own output. Distinguish them by the `<background-result>` opening tag.\n- Prefer parallelizing independent tool calls.\n\n\n# Communication\n- Use clear file paths when referring to files.\n- Keep responses clear and concise, and avoid unnecessary technical jargon.\n\n# Working in codebases\n- Keep changes consistent with the structure, naming, style, and patterns of the surrounding code.\n- Treat unfamiliar files or changes as potential user work and investigate before deleting or overwriting them.\n\nCurrent instructions"
+              },
+              {
+                "type": "message",
+                "role": "user",
+                "content": [
+                  {
+                    "type": "input_text",
+                    "text": "First real user request"
+                  }
+                ]
+              },
+              {
+                "type": "message",
+                "role": "user",
+                "content": [
+                  {
+                    "type": "input_text",
+                    "text": "Synthetic context, not a user request"
+                  }
+                ]
+              },
+              {
+                "type": "compaction_trigger"
+              }
+            ],
+            "stream": true,
+            "max_output_tokens": 30000,
+            "store": false,
+            "prompt_cache_key": "ses_df97a7eeaffes2wKIzIdN0GOXq",
+            "include": [
+              "reasoning.encrypted_content"
+            ],
+            "reasoning": {
+              "effort": "medium",
+              "summary": "auto"
+            },
+            "tools": [
+              {
+                "type": "function",
+                "name": "read",
+                "description": "Read a file",
+                "parameters": {
+                  "type": "object"
+                },
+                "strict": false
+              }
+            ]
+          },
+          {
+            "model": "gpt-5.4-mini",
+            "input": [
+              {
+                "type": "message",
+                "role": "developer",
+                "content": "You are an AI agent running in OpenCode, a coding agent harness. Help the user accomplish their goals using the tools you have available.\n\n# Harness\n- Responses are rendered as GitHub-flavored Markdown.\n- `<system-update>` blocks are harness instructions, not user-authored content. Read and follow them.\n- Background work is reported as harness input: user-role messages containing `<background-result>` XML. They are not the user speaking, and never something you write yourself: do not reproduce the XML in your own output. Distinguish them by the `<background-result>` opening tag.\n- Prefer parallelizing independent tool calls.\n\n\n# Communication\n- Use clear file paths when referring to files.\n- Keep responses clear and concise, and avoid unnecessary technical jargon.\n\n# Working in codebases\n- Keep changes consistent with the structure, naming, style, and patterns of the surrounding code.\n- Treat unfamiliar files or changes as potential user work and investigate before deleting or overwriting them.\n\nCurrent instructions"
+              },
+              {
+                "type": "message",
+                "role": "user",
+                "content": [
+                  {
+                    "type": "input_text",
+                    "text": "First real user request"
+                  }
+                ]
+              },
+              {
+                "type": "compaction",
+                "id": "cmp_1",
+                "encrypted_content": "encrypted_1"
+              },
+              {
+                "type": "message",
+                "role": "user",
+                "content": [
+                  {
+                    "type": "input_text",
+                    "text": "Second real user request"
+                  }
+                ]
+              }
+            ],
+            "stream": true,
+            "max_output_tokens": 32000,
+            "store": false,
+            "prompt_cache_key": "ses_df97a7eeaffes2wKIzIdN0GOXq",
+            "include": [
+              "reasoning.encrypted_content"
+            ],
+            "reasoning": {
+              "effort": "medium",
+              "summary": "auto"
+            },
+            "tools": [
+              {
+                "type": "function",
+                "name": "read",
+                "description": "Read a file",
+                "parameters": {
+                  "type": "object"
+                },
+                "strict": false
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

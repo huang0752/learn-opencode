@@ -1,0 +1,15 @@
+sequenceDiagram
+    participant P as 父 Session
+    participant J as Job
+    participant C as 子 Runner
+    participant D as SQLite / 投影
+    P->>J: 派发并注册后台运行
+    J->>C: SessionExecution.resume
+    C->>D: Execution.Started 和 claim
+    C->>D: 终止事件、释放 claim、写入待投递报告
+    Note over C,D: 终止事件与报告标记在同一个提交里
+    C->>D: 用稳定通知 ID 准入父 inbox
+    C->>D: 确认报告已交接
+    C-->>P: 唤醒可唤醒的父 Session
+    P->>D: 在交付边界发布 InboxDelivered
+    Note over P,D: synthetic 消息进入父历史

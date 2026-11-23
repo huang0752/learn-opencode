@@ -1,0 +1,177 @@
+{
+  "commit": "ee5fe34e136488a1839ac73bcca8321c51a31b75",
+  "observations": {
+    "14-extensions": [
+      {
+        "phase": "skill_attached_to_prompt",
+        "messages": [
+          {
+            "id": "msg_skill_attachment",
+            "skills": [
+              {
+                "id": "effect",
+                "mention": {
+                  "start": 6,
+                  "end": 13,
+                  "text": "@effect"
+                },
+                "hasContent": true
+              },
+              {
+                "id": "effect",
+                "mention": {
+                  "start": 18,
+                  "end": 25,
+                  "text": "@effect"
+                },
+                "hasContent": false
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "15-hooks-mcp": [
+      {
+        "phase": "tool_hook_then_schema",
+        "executed": [
+          {
+            "count": 2,
+            "enabled": true
+          },
+          {
+            "count": false,
+            "enabled": true
+          }
+        ]
+      },
+      {
+        "phase": "mcp_paths",
+        "invocations": [
+          {
+            "server": "direct",
+            "name": "lookup",
+            "args": {},
+            "sessionID": "ses_mcp_direct"
+          },
+          {
+            "server": "demo",
+            "name": "search",
+            "args": {},
+            "sessionID": "ses_mcp_codemode"
+          }
+        ],
+        "directNames": [
+          "direct_attachments",
+          "direct_fail",
+          "direct_issues",
+          "direct_lookup",
+          "direct_media",
+          "execute"
+        ],
+        "codeModeLookupPath": "demo.search"
+      }
+    ],
+    "16-clients-protocol": {
+      "help": "DESCRIPTION\n  OpenCode command line interface\n\nUSAGE\n  opencode <subcommand> [flags] [<directory>]\n\nARGUMENTS\n  directory string    Directory to start OpenCode in (optional)\n\nFLAGS\n  --standalone            Run with a private server instead of the background service\n  --server string         Connect to a server URL instead of the background service\n  --auto                  Auto-approve permissions that are not explicitly denied\n  --continue, -c          Continue the last session\n  --session, -s string    Session ID to continue, or to create if it does not exist\n  --prompt string         Prompt to use\n\nGLOBAL FLAGS\n  --help, -h                                                          Show help information\n  --version, -v                                                       Show version information\n  --wizard                                                            Start wizard mode for a command\n  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)\n  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)\n  --print-logs                                                        Print logs to stderr (server logs require --standalone)\n\nSUBCOMMANDS\n  upgrade, update    Upgrade OpenCode to the latest or a specific version\n  uninstall          Uninstall OpenCode, keeping session data, configuration, and state\n  acp                Start an Agent Client Protocol server\n  api                Make a request to the running server\n  debug              Debugging and troubleshooting tools\n  auth               manage integrations and credentials\n  mcp                Manage MCP (Model Context Protocol) servers\n  plugin             Manage plugins\n  models             List all available models\n  stats              Show shareable usage statistics\n  mini               Start the minimal interactive interface\n  run                Run OpenCode with a message\n  session            Manage sessions\n  service            Manage the background server\n  reload             Reload configuration\n  machine            Manage remote machines\n  pair               Print one-time links to connect a browser or app\n  serve              Start the v2 API and web server"
+    },
+    "17-ci-release": {
+      "check": "bun run check:generated · OpenAPI 生成物一致性通过"
+    },
+    "18-capstone": {
+      "commit": "ee5fe34e136488a1839ac73bcca8321c51a31b75",
+      "counts": {
+        "pass": 2,
+        "fail": 0
+      },
+      "observations": [
+        {
+          "scenario": "procurement",
+          "phase": "before_close",
+          "childClaim": true,
+          "jobStatuses": [
+            "running"
+          ],
+          "parentReports": 0
+        },
+        {
+          "scenario": "procurement",
+          "phase": "reopened",
+          "childClaim": true,
+          "jobStatuses": [
+            "running"
+          ]
+        },
+        {
+          "scenario": "procurement",
+          "phase": "report_delivered",
+          "childCalls": 2,
+          "report": "<background-result kind=\"subagent\" sessionID=\"ses_df96efce6ffeZWgs6xE9aLS6xH\" state=\"completed\" description=\"procurement\">\nP12｜证书持有人华宁设备服务有限公司，有效期至 2027-06-30。\n</background-result>",
+          "replayCount": 1
+        },
+        {
+          "scenario": "procurement",
+          "phase": "compaction_completed",
+          "checkpoint": "msg_206910379001zKTr9q2DlepZBw",
+          "summary": "## Objective\n- 核查 ISO 9001 商务要求，缺证据时待复核。\n## Important Context\n- P12｜证书持有人华宁设备服务有限公司，有效期至 2027-06-30。",
+          "evidenceWasInSummaryRequest": true
+        },
+        {
+          "scenario": "procurement",
+          "phase": "final_request",
+          "conclusion": "符合｜P12｜证书持有人华宁设备服务有限公司，有效期至 2027-06-30。",
+          "roles": [
+            "user",
+            "user"
+          ],
+          "evidenceInRequest": true,
+          "summaryInRequest": true,
+          "originalChildCalls": 2
+        },
+        {
+          "scenario": "release-review",
+          "phase": "before_close",
+          "childClaim": true,
+          "jobStatuses": [
+            "running"
+          ],
+          "parentReports": 0
+        },
+        {
+          "scenario": "release-review",
+          "phase": "reopened",
+          "childClaim": true,
+          "jobStatuses": [
+            "running"
+          ]
+        },
+        {
+          "scenario": "release-review",
+          "phase": "report_delivered",
+          "childCalls": 2,
+          "report": "<background-result kind=\"subagent\" sessionID=\"ses_df96efc40ffdSQrMx9kUitu1sE\" state=\"completed\" description=\"release-review\">\nLOG-42｜找到回归日志，缺少最终退出码。\n</background-result>",
+          "replayCount": 1
+        },
+        {
+          "scenario": "release-review",
+          "phase": "compaction_completed",
+          "checkpoint": "msg_2069103ee001bih5eejHL2i2TZ",
+          "summary": "## Objective\n- 核查发布回归证明，缺退出码时待复核。\n## Important Context\n- LOG-42｜找到回归日志，缺少最终退出码。",
+          "evidenceWasInSummaryRequest": true
+        },
+        {
+          "scenario": "release-review",
+          "phase": "final_request",
+          "conclusion": "待复核｜LOG-42｜找到回归日志，缺少最终退出码。",
+          "roles": [
+            "user",
+            "user"
+          ],
+          "evidenceInRequest": true,
+          "summaryInRequest": true,
+          "originalChildCalls": 2
+        }
+      ]
+    }
+  }
+}

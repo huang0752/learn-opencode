@@ -1,0 +1,16 @@
+flowchart TD
+    A["/goal 写入状态，提交 kickoff"] --> W["会话执行"]
+    W --> I["Runner 到达 idle Hook"]
+    I --> V{"目标 active，且属于本次启动？"}
+    V -- "否" --> P0["结束评审或暂停旧目标"]
+    V -- "是" --> E{"有本会话直接拥有的<br/>子 Agent 等后台任务？"}
+    E -- "有" --> K["等待结果通知唤醒"]
+    E -- "无" --> B{"还有续跑预算？"}
+    B -- "无" --> P["暂停"]
+    B -- "有" --> J["Reviewer 根据历史复核"]
+    J --> D["done<br/>完成目标"]
+    J --> X["continue 且未停滞<br/>记录进展，追加 synthetic"]
+    J --> S["wait 且有本会话 shell<br/>等 shell 报告"]
+    J --> F["blocked、paused 或持续停滞<br/>暂停目标"]
+    J --> C["请求过长<br/>尝试压缩后再评审"]
+    X -. "进入下一轮" .-> W
